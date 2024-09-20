@@ -6,6 +6,7 @@ public class VendorMasterDetails {
     private String society_cent_cd;
     private String route_code;
     private String chilling_cent_cd;
+    private String vendorId;
     private int object_version_number;
 
     public void setVendor_code(String vendor_code) {
@@ -206,5 +207,13 @@ public class VendorMasterDetails {
 
     public String getChilling_cent_cd() {
         return chilling_cent_cd;
+    }
+
+    public void setVendorId(String vendorId) {
+        this.vendorId = vendorId;
+    }
+
+    public String getVendorId() {
+        return vendorId;
     }
 }

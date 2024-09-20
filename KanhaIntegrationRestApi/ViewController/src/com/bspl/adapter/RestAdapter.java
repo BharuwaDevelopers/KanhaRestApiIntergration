@@ -244,7 +244,13 @@ public class RestAdapter {
                                 result.setGst_reg_no(rs.getString("gst_reg_no"));
                                 result.setAadhar_card(rs.getString("aadhar_card"));
                                 result.setFather_husband_name(rs.getString("father_husband_name"));
-                                result.setFarmer_local_code(rs.getString("farmer_local_code"));
+                                if(rs.getString("farmer_local_code")==null||rs.getString("farmer_local_code")==""){
+                                    result.setFarmer_local_code(" "); 
+                                }
+                                else{
+                                    result.setFarmer_local_code(rs.getString("farmer_local_code"));
+                                }
+                                
                                 result.setCast_category(rs.getString("cast_category"));
                                 result.setSex_gender(rs.getString("sex_gender"));
                                 result.setVen_type_code(rs.getString("ven_type_code"));
@@ -262,6 +268,7 @@ public class RestAdapter {
                                 result.setRoute_code(rs.getString("route_code"));
                                 result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
                                 result.setObject_version_number(rs.getInt("object_version_number"));
+                                result.setVendorId(rs.getString("vendor_id"));
                                 vendorMasterDetailsList.add(result);
                                 updateQuery =
                                     "update vendor_master set API_REFNO='" + sb.toString() + "' where vendor_id='" +
