@@ -9,6 +9,9 @@ public class ErrorMsg {
     ArrayList<SocietyMstDetails> societyDetails;
     ArrayList<RouteMasterDetails> routeMasterDetails;
     ArrayList<VendorMasterDetails> vendorMasterDetails;
+    ArrayList<PaymentCycleDetails> paymentcycledetails;
+
+    
     private String message;
     private String refDocNo;
 
@@ -72,6 +75,14 @@ public class ErrorMsg {
 
     public ArrayList<VendorMasterDetails> getVendorMasterDetails() {
         return vendorMasterDetails;
+    }
+    
+    public void setPaymentcycledetails(ArrayList<PaymentCycleDetails> paymentcycledetails) {
+        this.paymentcycledetails = paymentcycledetails;
+    }
+
+    public ArrayList<PaymentCycleDetails> getPaymentcycledetails() {
+        return paymentcycledetails;
     }
 
     public void setRefDocNo(String refDocNo) {

@@ -1,4 +1,7 @@
 package view;
+
+import com.bspl.ws.WS_CallKanhaApi;
+
 import com.bspl.ws.WS_MasterDetails;
 import com.bspl.ws.WS_FarmerTransaction;
 
@@ -16,8 +19,10 @@ public class GenericApplication extends Application {
         Set<Class<?>> classes = new HashSet<Class<?>>();
 
         // Register root resources.
-        classes.add(WS_FarmerTransaction.class);
         classes.add(WS_MasterDetails.class);
+        classes.add(WS_FarmerTransaction.class);
+      
+        classes.add(WS_CallKanhaApi.class);
         classes.add(WS_RmrdTrnsaction.class);
 
         // Register provider classes.
