@@ -16,11 +16,10 @@ import javax.ws.rs.Path;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-@Path("ws")
-public class WS_CallKanhaApi {
+@Path("FarmerCollection")
+public class WS_CallFarmerCollectionKanhaApi {
     @GET
-    public String hello() {
-      
+    public String getFarmerCollection() {
         RestAdapter restadapter=new RestAdapter();
         return restadapter.getkanhaFarmerCollection();
     }

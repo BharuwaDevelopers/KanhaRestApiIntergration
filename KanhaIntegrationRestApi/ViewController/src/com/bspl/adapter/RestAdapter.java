@@ -981,8 +981,8 @@ public class RestAdapter {
         Statement stmt2 = null;
         String json = "";
         String insertDetailsQuery = "";
+        ErrorMsg errorMsgObj = new ErrorMsg();
         try {
-
             URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
@@ -1007,82 +1007,164 @@ public class RestAdapter {
                 // Check response status
                 int status = responseObject.getInt("responseStatus");
                 String message = responseObject.getString("responseMessage");
-                String batchCode = responseObject.getString("batchcode");
+                String ApiRefno = responseObject.getString("batchcode");
                 System.out.println("Response Status: " + status);
                 System.out.println("Response Message: " + message);
-                System.out.println("Batch Code: " + batchCode);
+                System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
                     conn = getStartConnection();
-                    conn.setAutoCommit(false);
-                    stmt = conn.createStatement();
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-                    Date date = new Date();
-
-                    JSONArray responseData = responseObject.getJSONArray("responseData");
-                    for (int i = 0; i < responseData.length(); i++) {
-                        JSONObject data = responseData.getJSONObject(i);
-                        System.out.println("id: " + data.getDouble("id"));
-                        System.out.println("bmC_TR_Code: " + data.getString("bmC_TR_Code"));
-                        System.out.println("mpP_TR_Code: " + data.getString("mpP_TR_Code"));
-                        System.out.println("member_TR_Code: " + data.getString("member_TR_Code"));
-                        System.out.println("Batch ID: " + data.getString("batch_id"));
-                        System.out.println("Collection Date: " + data.getString("collection_Date"));
-                        System.out.println("Shift: " + data.getString("shift"));
-                        System.out.println("Sample Number: " + data.getInt("sample_No"));
-                        System.out.println("Milk Type: " + data.getString("milk_Type"));
-                        System.out.println("Quantity: " + data.getDouble("qty"));
-                        System.out.println("Fat Content: " + data.getDouble("fat"));
-                        System.out.println("SNF: " + data.getDouble("snf"));
-                        System.out.println("Water Content: " + data.getDouble("water"));
-                        System.out.println("Rate: " + data.getDouble("rate"));
-                        System.out.println("Amount: " + data.getDouble("amount"));
-                        System.out.println("Quality Auto-Checked: " + data.getString("qlty_Auto"));
-                        String insertQuery =
-                            "INSERT INTO frm_collection_api (ID,BMC_TR_CODE,MPP_TR_CODE,MEMBER_TR_CODE,COLLECTION_DATE,SHIFT,SAMPLE_NO,MILK_TYPE,QTY,FAT,SNF,WATER,RATE,AMOUNT,QTY_AUTO,QTY_TIME,QLTY_AUTO,QLTY_TIME,INSERT_MODE,BATCH_ID,LINE_ID,CREATED_BY,CREATION_DATE,LAST_UPDATED_BY,LAST_UPDATE_DATE,OBJECT_VERSION_NUMBER) " +
-                            "VALUES ('" + data.getDouble("id") + "','" + data.getString("bmC_TR_Code") + "','" +
-                            data.getString("mpP_TR_Code") + "','" + data.getString("member_TR_Code") + "','" +
-                            data.getString("collection_Date") + "','" + data.getString("shift") + "','" +
-                            data.getInt("sample_No") + "','" + data.getString("milk_Type") + "','" +
-                            data.getDouble("qty") + "','" + data.getDouble("fat") + "'," + "'" + data.getDouble("snf") +
-                            "','" + data.getDouble("water") + "','" + data.getDouble("rate") + "','" +
-                            data.getDouble("amount") + "','" + data.getString("qlty_Auto") + "','" + data.getString("qlty_Time") + "','" +
-                            data.getString("qlty_Auto") + "','" + data.getString("qlty_Time") + "','" + data.getString("insert_Mode") +
-                            "', '" + data.getString("batch_id") +
-                            "',GLOBAL_OCI_SEQ.nextval,'Admin',SYSDATE,'Admin',SYSDATE,'0')";
-
-                        System.out.println("insertQuery---" + insertQuery);
-                        stmt.addBatch(insertQuery);
-                    }
-                    System.out.println("Batch Code: " + batchCode);
                     try {
-                        int[] updateCounts = stmt.executeBatch();
-                        conn.commit();
-
-                    } catch (Exception ex) {
+                       
+                        stmt = conn.createStatement();
+                        stmt2 = conn.createStatement();
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+                        Date date = new Date();
+                        String uploadid = dateFormat.format(date).toString();
+                        String unitCode = null;
+                        String chillingCode = null;
+                        String paymentcycleID = null;
+                        String formattedDate = null;
+                        JSONArray responseData = responseObject.getJSONArray("responseData");
+                        for (int i = 0; i < responseData.length(); i++) {
+                            JSONObject jsonobjectDtl = responseData.getJSONObject(i);
+                            System.out.println("societyCode: " + jsonobjectDtl.getString("societyCode"));
+                            System.out.println("eDate: " + jsonobjectDtl.getString("eDate"));
+                            String inputDate = jsonobjectDtl.getString("eDate"); // input date in YYYY-MM-DD format
+                            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+                            // Parse the input date
+                            LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
+                            // Format to the desired output
+                            formattedDate = date1.format(outputFormatter);
+                            System.out.println("formattedDate---" + formattedDate);
+                            System.out.println("time: " + jsonobjectDtl.getString("time"));
+                            System.out.println("itemCode: " + jsonobjectDtl.getString("itemCode"));
+                            System.out.println("milkType: " + jsonobjectDtl.getString("milkType"));
+                            System.out.println("localCode: " + jsonobjectDtl.getString("localCode"));
+                            System.out.println("extendedCode: " + jsonobjectDtl.getString("extendedCode"));
+                            System.out.println("quantity: " + jsonobjectDtl.getString("quantity"));
+                            System.out.println("fat: " + jsonobjectDtl.getString("fat"));
+                            System.out.println("snf: " + jsonobjectDtl.getString("snf"));
+                            System.out.println("amount: " + jsonobjectDtl.getString("amount"));
+                            System.out.println("quantity_Mode: " + jsonobjectDtl.getString("quantity_Mode"));
+                            System.out.println("shift: " + jsonobjectDtl.getString("shift"));
+                            System.out.println("rate: " + jsonobjectDtl.getString("rate"));
+                            System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId"));
+                            System.out.println("objectversionNo: " + jsonobjectDtl.getString("objectversionNo"));
+                            System.out.println("chillingCode: " + jsonobjectDtl.getString("chillingCode"));
+                            chillingCode = jsonobjectDtl.getString("chillingCode");
+                            System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode"));
+                            unitCode = jsonobjectDtl.getString("unitCode");
+                            try {
+                                insertDetailsQuery =
+                                    "insert into mm_farmer_data_upload (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
+                                    "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
+                                    "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
+                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO)\n" +
+                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                    jsonobjectDtl.getString("societyCode") + "','" +
+                                    jsonobjectDtl.getString("chillingCode") + "'," + paymentcycleID + ",'" + formattedDate +
+                                    "','" + jsonobjectDtl.getString("time") + "','" + jsonobjectDtl.getString("milkType") +
+                                    "','" + jsonobjectDtl.getString("localCode") + "','" +
+                                    jsonobjectDtl.getString("extendedCode") + "','" + jsonobjectDtl.getString("quantity") +
+                                    "','" + jsonobjectDtl.getString("fat") + "','" + jsonobjectDtl.getString("snf") +
+                                    "','" + jsonobjectDtl.getString("amount") + "','" +
+                                    jsonobjectDtl.getString("quantity_Mode") + "','" +
+                                    jsonobjectDtl.getString("measurement_Mode") + "','" + jsonobjectDtl.getString("shift") +
+                                    "','" + jsonobjectDtl.getString("rate") + "','" + jsonobjectDtl.getString("itemCode") +
+                                    "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "')";
+                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
+                                stmt2.addBatch(insertDetailsQuery);
+                            } catch (Exception ex) {
+                                errorMsgObj.setStatusCode(500);
+                                errorMsgObj.setSuccess(false);
+                                errorMsgObj.setMessage("Records not update! Please retry");
+                                ex.printStackTrace();
+                                WriteToFile(ex.toString());
+                            }
+                        }
                         try {
-                            conn.rollback();
-
+                            String insertHeadQuery =
+                                "insert into rmrd_mcc_upd_mst (UPLOAD_ID,UNIT_CD,MCC_CD,UPD_DATA_TYPE,PAY_CYCLE_ID,CREATED_BY,CREATION_DATE,LAST_UPDATED_BY,LAST_UPDATE_DATE,UPLOAD_FROM)\n" +
+                                "values('" + uploadid + "','" + unitCode + "','" + chillingCode + "','DSK'," +
+                                paymentcycleID + ",'Admin',SYSDATE,'Admin',SYSDATE,'API')";
+                            // System.out.println("updateQuery11--" + insertQuery1);
+                            stmt.addBatch(insertHeadQuery);
+                        } catch (Exception ex) {
+                            errorMsgObj.setStatusCode(500);
+                            errorMsgObj.setSuccess(false);
+                            errorMsgObj.setMessage("Records not update! Please retry");
                             ex.printStackTrace();
                             WriteToFile(ex.toString());
-                            //return "Failed to save data. Data safely rolled back";
-                        } catch (Exception ex1) {
-
                         }
-                    } finally {
                         try {
-                            stmt.close();
-                            conn.close();
-                        } catch (Exception nex) {
-                            //return "N";
+                            int[] updateCounts = stmt.executeBatch();
+                            int[] updateCounts1 = stmt2.executeBatch();
+                            conn.commit();
+                            errorMsgObj.setStatusCode(200);
+                            errorMsgObj.setSuccess(true);
+                            errorMsgObj.setRefDocNo(ApiRefno);
+                            errorMsgObj.setMessage(" Records has been updated");
+                        } catch (Exception ex) {
+                            try {
+                                conn.rollback();
+                                errorMsgObj.setStatusCode(500);
+                                errorMsgObj.setSuccess(false);
+                                errorMsgObj.setMessage("Records not update! Please retry");
+                                ex.printStackTrace();
+                                WriteToFile(ex.toString());
+                                //return "Failed to save data. Data safely rolled back";
+                            } catch (Exception ex1) {
+                                errorMsgObj.setStatusCode(500);
+                                errorMsgObj.setSuccess(false);
+                                errorMsgObj.setMessage("Records not update! Please retry");
+                                ex.printStackTrace();
+                                WriteToFile(ex1.toString());
+                            }
+                        } finally {
+                            try {
+                                stmt.close();
+                                stmt2.close();
+                                conn.close();
+                            } catch (Exception nex) {
+                                errorMsgObj.setStatusCode(500);
+                                errorMsgObj.setSuccess(false);
+                                errorMsgObj.setMessage("Records not update! Please retry");
+                                nex.printStackTrace();
+                                WriteToFile(nex.toString());
+                            }
                         }
+
+                    } catch (Exception ex) {
+                        errorMsgObj.setStatusCode(500);
+                        errorMsgObj.setSuccess(false);
+                        errorMsgObj.setMessage("Records not update! Please retry");
+                        ex.printStackTrace();
+                        WriteToFile(ex.toString());
                     }
                 }
 
+
             }
         } catch (Exception ex) {
+            errorMsgObj.setStatusCode(500);
+            errorMsgObj.setSuccess(false);
+            errorMsgObj.setMessage("Records not update! Please retry");
             ex.printStackTrace();
+            WriteToFile(ex.toString());
         }
-        return null;
+        try {
+            Gson gson = new Gson();
+            json = gson.toJson(errorMsgObj);
+        } catch (Exception ex) {
+            errorMsgObj.setStatusCode(500);
+            errorMsgObj.setSuccess(false);
+            errorMsgObj.setMessage("Records not update! Please retry");
+            ex.printStackTrace();
+            WriteToFile(ex.toString());
+            WriteToFile(ex.toString());
+        }
+        return json;
     }
 
 }
