@@ -251,15 +251,34 @@ public class RestAdapter {
                             VendorMasterDetails result = null;
                             ArrayList<VendorMasterDetails> vendorMasterDetailsList =
                                 new ArrayList<VendorMasterDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("SELECT A.vendor_id,A.vendor_code,A.NAME as vendor_name,A.registeration_date,A.pan_no,A.gst_reg_no,A.aadhar_card,A.father_husband_name,A.farmer_local_code,A.cast_category,\n" +
-                                                  "A.sex_gender,A.ven_type_code,A.ven_type ,C.contact_person,C.address1,C.city,C.STATE,C.city_code,b.bank_name,b.bank_ac_no,b.bank_ifcs_code,A.vendor_status,\n" +
-                                                  "D.society_cent_cd,E.route_code,F.chilling_cent_cd,A.object_version_number\n" +
-                                                  "FROM vendor_master A,vendor_bank_detail b,vendor_regd_address C ,\n" +
-                                                  "society_farmer_ven_map D,society_rute_map E,society_chill_vend_map F\n" +
-                                                  "WHERE   ven_type='F' AND A.vendor_code=b.ven_cd AND A.vendor_code=C.vendor_code\n" +
-                                                  "AND A.vendor_code=D.farmer_ven_cd AND D.society_cent_cd=E.society_cent_cd\n" +
-                                                  "AND D.society_cent_cd=F.society_cent_cd\n" + "AND A.api_flag='N'");
+                            String sqlQuery =
+                                "SELECT " + "A.vendor_id, " + "A.vendor_code, " + "A.NAME AS vendor_name, " +
+                                "A.registeration_date, " + "A.pan_no, " + "A.gst_reg_no, " + "A.aadhar_card, " +
+                                "A.father_husband_name, " + "A.farmer_local_code, " + "A.cast_category, " +
+                                "A.sex_gender, " + "A.ven_type_code, " + "A.ven_type, " + "C.contact_person, " +
+                                "C.address1, " + "C.city, " + "C.STATE, " + "C.city_code, " + "B.bank_name, " +
+                                "B.bank_ac_no, " + "B.bank_ifcs_code, " + "A.vendor_status, " + "D.society_cent_cd, " +
+                                "E.route_code, " + "F.chilling_cent_cd, " + "A.object_version_number " +
+                                "FROM vendor_master A " + "JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd " +
+                                "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code " +
+                                "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd " +
+                                "JOIN (SELECT DISTINCT society_cent_cd, route_code " +
+                                "      FROM society_rute_map) E ON D.society_cent_cd = E.society_cent_cd " +
+                                "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd " +
+                                "      FROM society_chill_vend_map) F ON D.society_cent_cd = F.society_cent_cd " +
+                                "WHERE A.ven_type = 'F' " + "AND A.vendor_status = 'OK' " + "AND A.QA_STATUS = 'Y' " +
+                                "AND D.TO_DT > SYSDATE " + "AND A.api_flag = 'N'";
+
+
+                            ResultSet rs = stmt.executeQuery(sqlQuery);
+                            //                                stmt.executeQuery("SELECT A.vendor_id,A.vendor_code,A.NAME as vendor_name,A.registeration_date,A.pan_no,A.gst_reg_no,A.aadhar_card,A.father_husband_name,A.farmer_local_code,A.cast_category,\n" +
+                            //                                                  "A.sex_gender,A.ven_type_code,A.ven_type ,C.contact_person,C.address1,C.city,C.STATE,C.city_code,b.bank_name,b.bank_ac_no,b.bank_ifcs_code,A.vendor_status,\n" +
+                            //                                                  "D.society_cent_cd,E.route_code,F.chilling_cent_cd,A.object_version_number\n" +
+                            //                                                  "FROM vendor_master A,vendor_bank_detail b,vendor_regd_address C ,\n" +
+                            //                                                  "society_farmer_ven_map D,society_rute_map E,society_chill_vend_map F\n" +
+                            //                                                  "WHERE   ven_type='F' AND A.vendor_code=b.ven_cd AND A.vendor_code=C.vendor_code\n" +
+                            //                                                  "AND A.vendor_code=D.farmer_ven_cd AND D.society_cent_cd=E.society_cent_cd\n" +
+                            //                                                  "AND D.society_cent_cd=F.society_cent_cd\n" + "AND A.api_flag='N'");
                             while (rs.next()) {
                                 i++;
                                 result = new VendorMasterDetails();
@@ -409,7 +428,7 @@ public class RestAdapter {
                                 errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
                             }
                         }
-                        
+
                         if (mJson.getString("mastertype").equalsIgnoreCase("PaymentCycle") &&
                             !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
                             int status = updateApiStatus("paymet_cycle", mJson.getString("refdoc_no"));
@@ -942,8 +961,8 @@ public class RestAdapter {
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             Date date = new Date();
             //System.out.println(formatter.format(date));
-            String file = "/home/oracle/API_ErrorLogs/ErrorLog.txt";
-            //String file = "/home/lenovo/Desktop/UCDF/ErrorLog.txt";
+            // String file = "/home/oracle/API_ErrorLogs/ErrorLog.txt";
+            String file = "/home/lenovo/Desktop/UCDF/ErrorLog.txt";
             File myObj = new File(file);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
@@ -982,6 +1001,7 @@ public class RestAdapter {
         String json = "";
         String insertDetailsQuery = "";
         ErrorMsg errorMsgObj = new ErrorMsg();
+        Gson gson = new Gson();
         try {
             URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -990,7 +1010,7 @@ public class RestAdapter {
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
             String jsonInputString =
-                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"farmer\",\"refdoc_no\":\"0\"}";
+                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1012,9 +1032,10 @@ public class RestAdapter {
                 System.out.println("Response Message: " + message);
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
+
                     conn = getStartConnection();
                     try {
-                       
+
                         stmt = conn.createStatement();
                         stmt2 = conn.createStatement();
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -1027,52 +1048,216 @@ public class RestAdapter {
                         JSONArray responseData = responseObject.getJSONArray("responseData");
                         for (int i = 0; i < responseData.length(); i++) {
                             JSONObject jsonobjectDtl = responseData.getJSONObject(i);
-                            System.out.println("societyCode: " + jsonobjectDtl.getString("societyCode"));
-                            System.out.println("eDate: " + jsonobjectDtl.getString("eDate"));
-                            String inputDate = jsonobjectDtl.getString("eDate"); // input date in YYYY-MM-DD format
-                            DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                            DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
-                            // Parse the input date
-                            LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
-                            // Format to the desired output
-                            formattedDate = date1.format(outputFormatter);
-                            System.out.println("formattedDate---" + formattedDate);
-                            System.out.println("time: " + jsonobjectDtl.getString("time"));
-                            System.out.println("itemCode: " + jsonobjectDtl.getString("itemCode"));
-                            System.out.println("milkType: " + jsonobjectDtl.getString("milkType"));
-                            System.out.println("localCode: " + jsonobjectDtl.getString("localCode"));
-                            System.out.println("extendedCode: " + jsonobjectDtl.getString("extendedCode"));
-                            System.out.println("quantity: " + jsonobjectDtl.getString("quantity"));
-                            System.out.println("fat: " + jsonobjectDtl.getString("fat"));
-                            System.out.println("snf: " + jsonobjectDtl.getString("snf"));
-                            System.out.println("amount: " + jsonobjectDtl.getString("amount"));
-                            System.out.println("quantity_Mode: " + jsonobjectDtl.getString("quantity_Mode"));
-                            System.out.println("shift: " + jsonobjectDtl.getString("shift"));
-                            System.out.println("rate: " + jsonobjectDtl.getString("rate"));
-                            System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId"));
-                            System.out.println("objectversionNo: " + jsonobjectDtl.getString("objectversionNo"));
-                            System.out.println("chillingCode: " + jsonobjectDtl.getString("chillingCode"));
-                            chillingCode = jsonobjectDtl.getString("chillingCode");
-                            System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode"));
-                            unitCode = jsonobjectDtl.getString("unitCode");
+                            String societyCode = null;
+                            if (jsonobjectDtl.getString("societyCode").toString() == null ||
+                                jsonobjectDtl.getString("societyCode").toString() == "") {
+                            } else {
+                                societyCode = jsonobjectDtl.getString("societyCode").toString();
+                            }
+                            System.out.println("societyCode: " + societyCode);
+                            String eDate = null;
+                            if (jsonobjectDtl.getString("eDate").toString() == null ||
+                                jsonobjectDtl.getString("eDate").toString() == "") {
+                            } else {
+                                eDate = jsonobjectDtl.getString("eDate").toString();
+                                String inputDate = eDate;
+                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+                                // Parse the input date
+                                LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
+                                // Format to the desired output
+                                formattedDate = date1.format(outputFormatter);
+                                System.out.println("formattedDate---" + formattedDate);
+                            }
+                            System.out.println("eDate: " + eDate);
+                            //System.out.println("eDate: " + jsonobjectDtl.getString("eDate").toString());
+                            String time = null;
+                            if (jsonobjectDtl.getString("time").toString() == null ||
+                                jsonobjectDtl.getString("time").toString() == "") {
+                            } else {
+                                time = jsonobjectDtl.getString("time").toString();
+                            }
+                            System.out.println("time: " + time);
+                            //  System.out.println("time: " + jsonobjectDtl.getString("time").toString());
+
+                            String itemCode = null;
+                            if (jsonobjectDtl.getString("itemCode").toString() == null ||
+                                jsonobjectDtl.getString("itemCode").toString() == "") {
+                            } else {
+                                itemCode = jsonobjectDtl.getString("itemCode").toString();
+                            }
+                            System.out.println("itemcode: " + itemCode);
+                            //System.out.println("itemCode: " + jsonobjectDtl.getString("itemCode").toString());
+                            //System.out.println("milkType: " + jsonobjectDtl.getString("milkType").toString());
+                            String milkType = null;
+                            if (jsonobjectDtl.getString("milkType").toString() == null ||
+                                jsonobjectDtl.getString("milkType").toString() == "") {
+                            } else {
+                                milkType = jsonobjectDtl.getString("milkType").toString();
+                            }
+                            System.out.println("milkType: " + milkType);
+                            // System.out.println("localCode: " + jsonobjectDtl.getString("localCode".toString()));
+                            String localCode = null;
+                            if (jsonobjectDtl.getString("localCode").toString() == null ||
+                                jsonobjectDtl.getString("localCode").toString() == "") {
+                            } else {
+                                localCode = jsonobjectDtl.getString("localCode").toString();
+                            }
+                            System.out.println("localCode: " + localCode);
+
+
+                            String extendedCode = null;
+                            if (jsonobjectDtl.getString("extendedCode").toString() == null ||
+                                jsonobjectDtl.getString("extendedCode").toString() == "") {
+                            } else {
+                                extendedCode = jsonobjectDtl.getString("extendedCode").toString();
+                            }
+                            System.out.println("extendedCode: " + extendedCode);
+                            //System.out.println("quantity: " + jsonobjectDtl.getString("quantity").toString());
+                            
+                            String quantity = null;
+                            if (jsonobjectDtl.getString("quantity").toString() == null ||
+                                jsonobjectDtl.getString("quantity").toString() == "") {
+                            } else {
+                                quantity = jsonobjectDtl.getString("quantity").toString();
+                            }
+                            System.out.println("quantity: " + quantity);
+                            
+                            //System.out.println("fat: " + jsonobjectDtl.getString("fat").toString());
+                           
+                            String fat = null;
+                            if (jsonobjectDtl.getString("fat").toString() == null ||
+                                jsonobjectDtl.getString("fat").toString() == "") {
+                            } else {
+                                fat = jsonobjectDtl.getString("fat").toString();
+                            }
+                            System.out.println("fat: " + fat);
+                          //  System.out.println("snf: " + jsonobjectDtl.getString("snf").toString());
+                           
+                          String snf = null;
+                          if (jsonobjectDtl.getString("snf").toString() == null ||
+                              jsonobjectDtl.getString("snf").toString() == "") {
+                          } else {
+                              snf = jsonobjectDtl.getString("snf").toString();
+                          }
+                            System.out.println("snf: " + snf);
+                           // System.out.println("amount: " + jsonobjectDtl.getString("amount").toString());
+                           String amount = null;
+                           if (jsonobjectDtl.getString("amount").toString() == null ||
+                               jsonobjectDtl.getString("amount").toString() == "") {
+                           } else {
+                               amount = jsonobjectDtl.getString("amount").toString();
+                           }
+                             System.out.println("amount: " + amount);
+                           
+                            //System.out.println("quantity_Mode: " + jsonobjectDtl.getString("quantity_Mode").toString());
+                            String quantity_Mode = null;
+                            if (jsonobjectDtl.getString("quantity_Mode").toString() == null ||
+                                jsonobjectDtl.getString("quantity_Mode").toString() == "") {
+                            } else {
+                                quantity_Mode = jsonobjectDtl.getString("quantity_Mode").toString();
+                            }
+                              System.out.println("quantity_Mode: " + quantity_Mode);
+                            
+                            //System.out.println("shift: " + jsonobjectDtl.getString("shift").toString());
+                            String shift = null;
+                            if (jsonobjectDtl.getString("shift").toString() == null ||
+                                jsonobjectDtl.getString("shift").toString() == "") {
+                            } else {
+                                shift = jsonobjectDtl.getString("shift").toString();
+                            }
+                              System.out.println("shift: " + shift);
+                            
+                          //  System.out.println("rate: " + jsonobjectDtl.getString("rate").toString());
+                          
+                            String rate = null;
+                            if (jsonobjectDtl.getString("rate").toString() == null ||
+                                jsonobjectDtl.getString("rate").toString() == "") {
+                            } else {
+                                rate = jsonobjectDtl.getString("rate").toString();
+                            }
+                              System.out.println("rate: " + rate);
+                          
+                           // System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId").toString());
+                           
+                           String primeryId = null;
+                           if (jsonobjectDtl.getString("primeryId").toString() == null ||
+                               jsonobjectDtl.getString("primeryId").toString() == "") {
+                           } else {
+                               primeryId = jsonobjectDtl.getString("primeryId").toString();
+                           }
+                             System.out.println("primeryId: " + primeryId);
+                           
+                            //System.out.println("objectversionNo: " +jsonobjectDtl.getString("objectversionNo").toString());
+                           
+                            String objectversionNo = "0";
+                            if (jsonobjectDtl.getString("objectversionNo").toString() == null ||
+                                jsonobjectDtl.getString("objectversionNo").toString() == "") {
+                            } else {
+                                objectversionNo = jsonobjectDtl.getString("objectversionNo").toString();
+                            }
+                              System.out.println("objectversionNo: " + objectversionNo);
+                           
+                            if (jsonobjectDtl.getString("chillingCode").toString() == null ||
+                                jsonobjectDtl.getString("chillingCode").toString() == "") {
+
+                            } else {
+                                chillingCode = jsonobjectDtl.getString("chillingCode").toString();
+                            }
+                            System.out.println("chillingCode: " + chillingCode);
+                            //System.out.println("can: " + jsonobjectDtl.getString("can").toString());
+
+
+                            String can = null;
+                            if (jsonobjectDtl.getString("can").toString() == null ||
+                                jsonobjectDtl.getString("can").toString() == "") {
+                            } else {
+                                can = jsonobjectDtl.getString("can").toString();
+                            }
+                              System.out.println("can: " + can);
+                            //System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode").toString());
+                           
+                            if (jsonobjectDtl.getString("unitCode").toString() == null ||
+                                jsonobjectDtl.getString("unitCode").toString() == "") {
+                            } else {
+                                unitCode = jsonobjectDtl.getString("unitCode").toString();
+                            }
+                              System.out.println("unitCode: " + unitCode);
+                            
+                            
+                            //jsonobjectDtl.getString("measurement_Mode").toString()
+                            String measurement_Mode = null;
+                            if (jsonobjectDtl.getString("measurement_Mode").toString() == null ||
+                                jsonobjectDtl.getString("measurement_Mode").toString() == "") {
+                            } else {
+                                measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
+                            }
+                              System.out.println("measurement_Mode: " + measurement_Mode);
+                          
+                          //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
                                 insertDetailsQuery =
                                     "insert into mm_farmer_data_upload (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
                                     "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
                                     "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
-                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO)\n" +
+                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR)\n" +
                                     "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
-                                    jsonobjectDtl.getString("societyCode") + "','" +
-                                    jsonobjectDtl.getString("chillingCode") + "'," + paymentcycleID + ",'" + formattedDate +
-                                    "','" + jsonobjectDtl.getString("time") + "','" + jsonobjectDtl.getString("milkType") +
-                                    "','" + jsonobjectDtl.getString("localCode") + "','" +
-                                    jsonobjectDtl.getString("extendedCode") + "','" + jsonobjectDtl.getString("quantity") +
-                                    "','" + jsonobjectDtl.getString("fat") + "','" + jsonobjectDtl.getString("snf") +
-                                    "','" + jsonobjectDtl.getString("amount") + "','" +
-                                    jsonobjectDtl.getString("quantity_Mode") + "','" +
-                                    jsonobjectDtl.getString("measurement_Mode") + "','" + jsonobjectDtl.getString("shift") +
-                                    "','" + jsonobjectDtl.getString("rate") + "','" + jsonobjectDtl.getString("itemCode") +
-                                    "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "')";
+                                    societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
+                                    time + "','" +
+                                    milkType + "','" +
+                                    localCode + "','" +
+                                    extendedCode + "','" +
+                                   quantity + "','" +
+                                    fat + "','" +
+                                    snf + "','" +
+                                    amount + "','" +
+                                   quantity_Mode + "','" +
+                                   measurement_Mode + "','" +
+                                    shift + "','" +
+                                    rate + "','" +
+                                    itemCode + "'," +
+                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" +
+                                    primeryId + "')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 stmt2.addBatch(insertDetailsQuery);
                             } catch (Exception ex) {
@@ -1081,6 +1266,9 @@ public class RestAdapter {
                                 errorMsgObj.setMessage("Records not update! Please retry");
                                 ex.printStackTrace();
                                 WriteToFile(ex.toString());
+                                json = gson.toJson(errorMsgObj);
+                                return json;
+
                             }
                         }
                         try {
@@ -1096,6 +1284,8 @@ public class RestAdapter {
                             errorMsgObj.setMessage("Records not update! Please retry");
                             ex.printStackTrace();
                             WriteToFile(ex.toString());
+                            json = gson.toJson(errorMsgObj);
+                            return json;
                         }
                         try {
                             int[] updateCounts = stmt.executeBatch();
@@ -1120,6 +1310,8 @@ public class RestAdapter {
                                 errorMsgObj.setMessage("Records not update! Please retry");
                                 ex.printStackTrace();
                                 WriteToFile(ex1.toString());
+                                json = gson.toJson(errorMsgObj);
+                                return json;
                             }
                         } finally {
                             try {
@@ -1132,6 +1324,8 @@ public class RestAdapter {
                                 errorMsgObj.setMessage("Records not update! Please retry");
                                 nex.printStackTrace();
                                 WriteToFile(nex.toString());
+                                json = gson.toJson(errorMsgObj);
+                                return json;
                             }
                         }
 
@@ -1141,7 +1335,16 @@ public class RestAdapter {
                         errorMsgObj.setMessage("Records not update! Please retry");
                         ex.printStackTrace();
                         WriteToFile(ex.toString());
+                        json = gson.toJson(errorMsgObj);
+                        return json;
                     }
+                } else {
+                    errorMsgObj.setStatusCode(500);
+                    errorMsgObj.setSuccess(false);
+                    errorMsgObj.setMessage("Data not fetch from kanha Api! Please retry");
+                    WriteToFile("Data not featch  from kanha Api");
+                    json = gson.toJson(errorMsgObj);
+                    return json;
                 }
 
 
@@ -1152,17 +1355,20 @@ public class RestAdapter {
             errorMsgObj.setMessage("Records not update! Please retry");
             ex.printStackTrace();
             WriteToFile(ex.toString());
+            json = gson.toJson(errorMsgObj);
+            return json;
         }
         try {
-            Gson gson = new Gson();
             json = gson.toJson(errorMsgObj);
+
         } catch (Exception ex) {
             errorMsgObj.setStatusCode(500);
             errorMsgObj.setSuccess(false);
             errorMsgObj.setMessage("Records not update! Please retry");
             ex.printStackTrace();
             WriteToFile(ex.toString());
-            WriteToFile(ex.toString());
+            json = gson.toJson(errorMsgObj);
+            return json;
         }
         return json;
     }
