@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.time.LocalDate;
@@ -962,7 +963,8 @@ public class RestAdapter {
             Date date = new Date();
             //System.out.println(formatter.format(date));
             // String file = "/home/oracle/API_ErrorLogs/ErrorLog.txt";
-            String file = "/home/lenovo/Desktop/UCDF/ErrorLog.txt";
+            //String file = "/home/lenovo/Desktop/UCDF/ErrorLog.txt";
+            String file = "/u01/data/domains/UCDFBerp_domain/servers/QC_Server/logs/api_log/ErrorLog.txt";
             File myObj = new File(file);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
@@ -1061,13 +1063,28 @@ public class RestAdapter {
                             } else {
                                 eDate = jsonobjectDtl.getString("eDate").toString();
                                 String inputDate = eDate;
-                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
-                                // Parse the input date
-                                LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
-                                // Format to the desired output
-                                formattedDate = date1.format(outputFormatter);
-                                System.out.println("formattedDate---" + formattedDate);
+                                //                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                                //                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
+                                //                                // Parse the input date
+                                //                                LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
+                                //                                // Format to the desired output
+                                //                                formattedDate = date1.format(outputFormatter);
+                                //                                System.out.println("formattedDate---" + formattedDate);
+
+                                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
+                                SimpleDateFormat outputFormat = new SimpleDateFormat("MM-MMM-yy");
+
+                                try {
+                                    // Parse the input date string to a Date object
+                                    Date date2 = inputFormat.parse(inputDate);
+                                    // Format the Date object into the desired output format
+                                    String outputDate = outputFormat.format(date2);
+                                    // Print the formatted date
+                                    System.out.println("Formatted date: " + outputDate);
+                                    formattedDate=outputDate;
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
                             }
                             System.out.println("eDate: " + eDate);
                             //System.out.println("eDate: " + jsonobjectDtl.getString("eDate").toString());
@@ -1114,7 +1131,7 @@ public class RestAdapter {
                             }
                             System.out.println("extendedCode: " + extendedCode);
                             //System.out.println("quantity: " + jsonobjectDtl.getString("quantity").toString());
-                            
+
                             String quantity = null;
                             if (jsonobjectDtl.getString("quantity").toString() == null ||
                                 jsonobjectDtl.getString("quantity").toString() == "") {
@@ -1122,9 +1139,9 @@ public class RestAdapter {
                                 quantity = jsonobjectDtl.getString("quantity").toString();
                             }
                             System.out.println("quantity: " + quantity);
-                            
+
                             //System.out.println("fat: " + jsonobjectDtl.getString("fat").toString());
-                           
+
                             String fat = null;
                             if (jsonobjectDtl.getString("fat").toString() == null ||
                                 jsonobjectDtl.getString("fat").toString() == "") {
@@ -1132,24 +1149,24 @@ public class RestAdapter {
                                 fat = jsonobjectDtl.getString("fat").toString();
                             }
                             System.out.println("fat: " + fat);
-                          //  System.out.println("snf: " + jsonobjectDtl.getString("snf").toString());
-                           
-                          String snf = null;
-                          if (jsonobjectDtl.getString("snf").toString() == null ||
-                              jsonobjectDtl.getString("snf").toString() == "") {
-                          } else {
-                              snf = jsonobjectDtl.getString("snf").toString();
-                          }
+                            //  System.out.println("snf: " + jsonobjectDtl.getString("snf").toString());
+
+                            String snf = null;
+                            if (jsonobjectDtl.getString("snf").toString() == null ||
+                                jsonobjectDtl.getString("snf").toString() == "") {
+                            } else {
+                                snf = jsonobjectDtl.getString("snf").toString();
+                            }
                             System.out.println("snf: " + snf);
-                           // System.out.println("amount: " + jsonobjectDtl.getString("amount").toString());
-                           String amount = null;
-                           if (jsonobjectDtl.getString("amount").toString() == null ||
-                               jsonobjectDtl.getString("amount").toString() == "") {
-                           } else {
-                               amount = jsonobjectDtl.getString("amount").toString();
-                           }
-                             System.out.println("amount: " + amount);
-                           
+                            // System.out.println("amount: " + jsonobjectDtl.getString("amount").toString());
+                            String amount = null;
+                            if (jsonobjectDtl.getString("amount").toString() == null ||
+                                jsonobjectDtl.getString("amount").toString() == "") {
+                            } else {
+                                amount = jsonobjectDtl.getString("amount").toString();
+                            }
+                            System.out.println("amount: " + amount);
+
                             //System.out.println("quantity_Mode: " + jsonobjectDtl.getString("quantity_Mode").toString());
                             String quantity_Mode = null;
                             if (jsonobjectDtl.getString("quantity_Mode").toString() == null ||
@@ -1157,8 +1174,8 @@ public class RestAdapter {
                             } else {
                                 quantity_Mode = jsonobjectDtl.getString("quantity_Mode").toString();
                             }
-                              System.out.println("quantity_Mode: " + quantity_Mode);
-                            
+                            System.out.println("quantity_Mode: " + quantity_Mode);
+
                             //System.out.println("shift: " + jsonobjectDtl.getString("shift").toString());
                             String shift = null;
                             if (jsonobjectDtl.getString("shift").toString() == null ||
@@ -1166,38 +1183,38 @@ public class RestAdapter {
                             } else {
                                 shift = jsonobjectDtl.getString("shift").toString();
                             }
-                              System.out.println("shift: " + shift);
-                            
-                          //  System.out.println("rate: " + jsonobjectDtl.getString("rate").toString());
-                          
+                            System.out.println("shift: " + shift);
+
+                            //  System.out.println("rate: " + jsonobjectDtl.getString("rate").toString());
+
                             String rate = null;
                             if (jsonobjectDtl.getString("rate").toString() == null ||
                                 jsonobjectDtl.getString("rate").toString() == "") {
                             } else {
                                 rate = jsonobjectDtl.getString("rate").toString();
                             }
-                              System.out.println("rate: " + rate);
-                          
-                           // System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId").toString());
-                           
-                           String primeryId = null;
-                           if (jsonobjectDtl.getString("primeryId").toString() == null ||
-                               jsonobjectDtl.getString("primeryId").toString() == "") {
-                           } else {
-                               primeryId = jsonobjectDtl.getString("primeryId").toString();
-                           }
-                             System.out.println("primeryId: " + primeryId);
-                           
+                            System.out.println("rate: " + rate);
+
+                            // System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId").toString());
+
+                            String primeryId = null;
+                            if (jsonobjectDtl.getString("primeryId").toString() == null ||
+                                jsonobjectDtl.getString("primeryId").toString() == "") {
+                            } else {
+                                primeryId = jsonobjectDtl.getString("primeryId").toString();
+                            }
+                            System.out.println("primeryId: " + primeryId);
+
                             //System.out.println("objectversionNo: " +jsonobjectDtl.getString("objectversionNo").toString());
-                           
+
                             String objectversionNo = "0";
                             if (jsonobjectDtl.getString("objectversionNo").toString() == null ||
                                 jsonobjectDtl.getString("objectversionNo").toString() == "") {
                             } else {
                                 objectversionNo = jsonobjectDtl.getString("objectversionNo").toString();
                             }
-                              System.out.println("objectversionNo: " + objectversionNo);
-                           
+                            System.out.println("objectversionNo: " + objectversionNo);
+
                             if (jsonobjectDtl.getString("chillingCode").toString() == null ||
                                 jsonobjectDtl.getString("chillingCode").toString() == "") {
 
@@ -1214,17 +1231,17 @@ public class RestAdapter {
                             } else {
                                 can = jsonobjectDtl.getString("can").toString();
                             }
-                              System.out.println("can: " + can);
+                            System.out.println("can: " + can);
                             //System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode").toString());
-                           
+
                             if (jsonobjectDtl.getString("unitCode").toString() == null ||
                                 jsonobjectDtl.getString("unitCode").toString() == "") {
                             } else {
                                 unitCode = jsonobjectDtl.getString("unitCode").toString();
                             }
-                              System.out.println("unitCode: " + unitCode);
-                            
-                            
+                            System.out.println("unitCode: " + unitCode);
+
+
                             //jsonobjectDtl.getString("measurement_Mode").toString()
                             String measurement_Mode = null;
                             if (jsonobjectDtl.getString("measurement_Mode").toString() == null ||
@@ -1232,9 +1249,9 @@ public class RestAdapter {
                             } else {
                                 measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
                             }
-                              System.out.println("measurement_Mode: " + measurement_Mode);
-                          
-                          //  unitCode = jsonobjectDtl.getString("unitCode").toString();
+                            System.out.println("measurement_Mode: " + measurement_Mode);
+
+                            //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
                                 insertDetailsQuery =
                                     "insert into mm_farmer_data_upload (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
@@ -1243,21 +1260,11 @@ public class RestAdapter {
                                     "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR)\n" +
                                     "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
                                     societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
-                                    time + "','" +
-                                    milkType + "','" +
-                                    localCode + "','" +
-                                    extendedCode + "','" +
-                                   quantity + "','" +
-                                    fat + "','" +
-                                    snf + "','" +
-                                    amount + "','" +
-                                   quantity_Mode + "','" +
-                                   measurement_Mode + "','" +
-                                    shift + "','" +
-                                    rate + "','" +
-                                    itemCode + "'," +
-                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" +
-                                    primeryId + "')";
+                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
+                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
+                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
+                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
+                                    "')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 stmt2.addBatch(insertDetailsQuery);
                             } catch (Exception ex) {
