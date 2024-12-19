@@ -5,6 +5,7 @@ import com.bspl.model.ChillingMstDetails;
 import com.bspl.model.PaymentCycleDetails;
 import com.bspl.model.RouteMasterDetails;
 import com.bspl.model.SocietyMstDetails;
+import com.bspl.model.UnitDetails;
 import com.bspl.model.VendorMasterDetails;
 
 import java.sql.Connection;
@@ -386,6 +387,32 @@ public class RestAdapter {
                             errorMsgObj.setRefDocNo(sb.toString());
                             errorMsgObj.setPaymentcycledetails(paymentCycleMasterDetailsList);
                         }
+                        
+                        else if (mJson.getString("mastertype").equalsIgnoreCase("Unit") &&
+                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
+                            UnitDetails result = null;
+                            ArrayList<UnitDetails> unitMasterDetailsList =
+                                new ArrayList<UnitDetails>();
+                            ResultSet rs =
+                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS from unit");
+                            while (rs.next()) {
+                                i++;
+                                result = new UnitDetails();
+                                result.setUnitCode(rs.getString("CODE"));
+                                result.setCityCode(rs.getString("CITY_CODE"));
+                                result.setSbuCode(rs.getString("SBU_CODE"));
+                                result.setUnitName(rs.getString("NAME"));
+                                result.setUnitAddress(rs.getString("ADDRESS"));
+                                unitMasterDetailsList.add(result);
+                               
+                            }
+                            //System.out.println("updateQuery--" + updateQuery);
+                           
+                            errorMsgObj.setMessage("Successfully! All records has been fetched.");
+                           // errorMsgObj.setRefDocNo(sb.toString());
+                            errorMsgObj.setUnitdetails(unitMasterDetailsList);
+                        }
+
 
 
                         if (mJson.getString("mastertype").equalsIgnoreCase("Society") &&

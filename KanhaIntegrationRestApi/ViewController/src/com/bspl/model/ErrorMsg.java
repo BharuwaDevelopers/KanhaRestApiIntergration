@@ -10,8 +10,16 @@ public class ErrorMsg {
     ArrayList<RouteMasterDetails> routeMasterDetails;
     ArrayList<VendorMasterDetails> vendorMasterDetails;
     ArrayList<PaymentCycleDetails> paymentcycledetails;
+    ArrayList<UnitDetails> unitdetails;
 
-    
+    public void setUnitdetails(ArrayList<UnitDetails> unitdetails) {
+        this.unitdetails = unitdetails;
+    }
+
+    public ArrayList<UnitDetails> getUnitdetails() {
+        return unitdetails;
+    }
+
     private String message;
     private String refDocNo;
 
