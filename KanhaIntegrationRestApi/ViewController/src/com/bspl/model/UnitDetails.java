@@ -6,7 +6,17 @@ public class UnitDetails {
     private String sbuCode;
     private String unitName;
     private String unitAddress;
+    private String apiRefno;
     private String status;
+
+    public void setApiRefno(String apiRefno) {
+        this.apiRefno = apiRefno;
+    }
+
+    public String getApiRefno() {
+        return apiRefno;
+    }
+   
 
     public void setUnitCode(String unitCode) {
         this.unitCode = unitCode;

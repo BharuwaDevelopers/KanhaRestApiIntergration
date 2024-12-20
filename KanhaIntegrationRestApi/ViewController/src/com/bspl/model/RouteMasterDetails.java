@@ -2,7 +2,15 @@ package com.bspl.model;
 
 public class RouteMasterDetails {
    private String route_code,route_descp,distance,route_duration_frm,route_duration_to,
-    chilling_cent_cd,status,mgr_distance,evng_distance;
+    chilling_cent_cd,status,mgr_distance,evng_distance,unitCode;
+
+    public void setUnitCode(String unitCode) {
+        this.unitCode = unitCode;
+    }
+
+    public String getUnitCode() {
+        return unitCode;
+    }
     private int  object_version_number;
 
     public void setRoute_code(String route_code) {

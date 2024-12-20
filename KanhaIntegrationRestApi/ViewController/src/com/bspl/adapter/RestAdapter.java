@@ -208,9 +208,7 @@ public class RestAdapter {
                             RouteMasterDetails result = null;
                             ArrayList<RouteMasterDetails> routeMasterDetailsList = new ArrayList<RouteMasterDetails>();
                             ResultSet rs =
-                                stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,\n" +
-                                                  "chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance\n" +
-                                                  "FROM route_master");
+                                stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master");
                             while (rs.next()) {
                                 i++;
                                 result = new RouteMasterDetails();
@@ -223,6 +221,7 @@ public class RestAdapter {
                                 result.setObject_version_number(rs.getInt("object_version_number"));
                                 result.setMgr_distance(rs.getString("mgr_distance"));
                                 result.setEvng_distance(rs.getString("evng_distance"));
+                                result.setUnitCode(rs.getString("UNIT_CD"));
                                 routeMasterDetailsList.add(result);
                                 updateQuery =
                                     "update route_master set API_REFNo='" + sb.toString() + "' where ROUTE_CODE='" +
@@ -394,7 +393,7 @@ public class RestAdapter {
                             ArrayList<UnitDetails> unitMasterDetailsList =
                                 new ArrayList<UnitDetails>();
                             ResultSet rs =
-                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS from unit");
+                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit");
                             while (rs.next()) {
                                 i++;
                                 result = new UnitDetails();
@@ -403,6 +402,7 @@ public class RestAdapter {
                                 result.setSbuCode(rs.getString("SBU_CODE"));
                                 result.setUnitName(rs.getString("NAME"));
                                 result.setUnitAddress(rs.getString("ADDRESS"));
+                                result.setApiRefno(rs.getString("API_REFNO"));
                                 unitMasterDetailsList.add(result);
                                
                             }
@@ -460,6 +460,16 @@ public class RestAdapter {
                         if (mJson.getString("mastertype").equalsIgnoreCase("PaymentCycle") &&
                             !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
                             int status = updateApiStatus("paymet_cycle", mJson.getString("refdoc_no"));
+                            if (status > 0) {
+                                i++;
+                                errorMsgObj.setStatusCode(200);
+                                errorMsgObj.setSuccess(true);
+                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
+                            }
+                        }
+                        if (mJson.getString("mastertype").equalsIgnoreCase("Unit") &&
+                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
+                            int status = updateApiStatus("unit", mJson.getString("refdoc_no"));
                             if (status > 0) {
                                 i++;
                                 errorMsgObj.setStatusCode(200);
