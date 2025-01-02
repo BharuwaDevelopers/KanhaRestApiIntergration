@@ -1116,7 +1116,7 @@ public class RestAdapter {
                                 //                                System.out.println("formattedDate---" + formattedDate);
 
                                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
-                                SimpleDateFormat outputFormat = new SimpleDateFormat("MM-MMM-yy");
+                                SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MMM-yy");
 
                                 try {
                                     // Parse the input date string to a Date object
