@@ -1043,6 +1043,7 @@ public class RestAdapter {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
+        Statement stmt3 = null;
         String json = "";
         String insertDetailsQuery = "";
         ErrorMsg errorMsgObj = new ErrorMsg();
@@ -1294,11 +1295,12 @@ public class RestAdapter {
                                 measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
                             }
                             System.out.println("measurement_Mode: " + measurement_Mode);
-
+                            
+                           
                             //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
                                 insertDetailsQuery =
-                                    "insert into mm_farmer_data_upload (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
+                                    "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
                                     "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
                                     "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
                                     "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN)\n" +
@@ -1321,24 +1323,24 @@ public class RestAdapter {
 
                             }
                         }
+//                        try {
+//                            String insertHeadQuery =
+//                                "insert into rmrd_mcc_upd_mst (UPLOAD_ID,UNIT_CD,MCC_CD,UPD_DATA_TYPE,PAY_CYCLE_ID,CREATED_BY,CREATION_DATE,LAST_UPDATED_BY,LAST_UPDATE_DATE,UPLOAD_FROM,API_FLAG,API_REFNO)\n" +
+//                                "values('" + uploadid + "','" + unitCode + "','" + chillingCode + "','DSK'," +
+//                                paymentcycleID + ",'Admin',SYSDATE,'Admin',SYSDATE,'API','Y','"+ApiRefno+"')";
+//                            // System.out.println("updateQuery11--" + insertQuery1);
+//                            stmt.addBatch(insertHeadQuery);
+//                        } catch (Exception ex) {
+//                            errorMsgObj.setStatusCode(500);
+//                            errorMsgObj.setSuccess(false);
+//                            errorMsgObj.setMessage("Records not update! Please retry");
+//                            ex.printStackTrace();
+//                            WriteToFile(ex.toString());
+//                            json = gson.toJson(errorMsgObj);
+//                            return json;
+//                        }
                         try {
-                            String insertHeadQuery =
-                                "insert into rmrd_mcc_upd_mst (UPLOAD_ID,UNIT_CD,MCC_CD,UPD_DATA_TYPE,PAY_CYCLE_ID,CREATED_BY,CREATION_DATE,LAST_UPDATED_BY,LAST_UPDATE_DATE,UPLOAD_FROM,API_FLAG,API_REFNO)\n" +
-                                "values('" + uploadid + "','" + unitCode + "','" + chillingCode + "','DSK'," +
-                                paymentcycleID + ",'Admin',SYSDATE,'Admin',SYSDATE,'API','Y','"+ApiRefno+"')";
-                            // System.out.println("updateQuery11--" + insertQuery1);
-                            stmt.addBatch(insertHeadQuery);
-                        } catch (Exception ex) {
-                            errorMsgObj.setStatusCode(500);
-                            errorMsgObj.setSuccess(false);
-                            errorMsgObj.setMessage("Records not update! Please retry");
-                            ex.printStackTrace();
-                            WriteToFile(ex.toString());
-                            json = gson.toJson(errorMsgObj);
-                            return json;
-                        }
-                        try {
-                            int[] updateCounts = stmt.executeBatch();
+                        //    int[] updateCounts = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
                             conn.commit();
                             errorMsgObj.setStatusCode(200);
