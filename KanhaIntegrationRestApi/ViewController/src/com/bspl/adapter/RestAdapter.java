@@ -1343,10 +1343,20 @@ public class RestAdapter {
                         //    int[] updateCounts = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
                             conn.commit();
+                            if(updateCounts1.length>0){
                             errorMsgObj.setStatusCode(200);
                             errorMsgObj.setSuccess(true);
                             errorMsgObj.setRefDocNo(ApiRefno);
+                            errorMsgObj.setUploadId(uploadid);
                             errorMsgObj.setMessage(" Records has been updated");
+                            }
+                            else{
+                                errorMsgObj.setStatusCode(500);
+                                errorMsgObj.setSuccess(false);
+                                errorMsgObj.setRefDocNo("0");
+                                errorMsgObj.setUploadId("0");
+                                errorMsgObj.setMessage("Records not update! Please retry");  
+                            }
                         } catch (Exception ex) {
                             try {
                                 conn.rollback();

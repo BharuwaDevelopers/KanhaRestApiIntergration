@@ -5,6 +5,9 @@ import java.util.ArrayList;
 public class ErrorMsg {
     private int statusCode;
     private boolean success;
+    private String message;
+    private String refDocNo;
+    private String uploadId;
     ArrayList<ChillingMstDetails> chillingdetails;
     ArrayList<SocietyMstDetails> societyDetails;
     ArrayList<RouteMasterDetails> routeMasterDetails;
@@ -20,8 +23,7 @@ public class ErrorMsg {
         return unitdetails;
     }
 
-    private String message;
-    private String refDocNo;
+   
 
     public void setMessage(String message) {
         this.message = message;
@@ -99,5 +101,13 @@ public class ErrorMsg {
 
     public String getRefDocNo() {
         return refDocNo;
+    }
+
+    public void setUploadId(String uploadId) {
+        this.uploadId = uploadId;
+    }
+
+    public String getUploadId() {
+        return uploadId;
     }
 }
