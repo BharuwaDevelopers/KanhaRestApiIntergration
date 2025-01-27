@@ -1,7 +1,9 @@
 package view;
 
+import com.bspl.ws.WS_CallDispatchCollectionKanhaApi;
 import com.bspl.ws.WS_CallFarmerCollectionKanhaApi;
 
+import com.bspl.ws.WS_CallRMRDKanhaApi;
 import com.bspl.ws.WS_MasterDetails;
 import com.bspl.ws.WS_FarmerTransaction;
 
@@ -21,9 +23,10 @@ public class GenericApplication extends Application {
         // Register root resources.
         classes.add(WS_MasterDetails.class);
         classes.add(WS_FarmerTransaction.class);
-      
-        classes.add(WS_CallFarmerCollectionKanhaApi.class);
+        classes.add(WS_CallDispatchCollectionKanhaApi.class);
+        classes.add(WS_CallRMRDKanhaApi.class);
         classes.add(WS_RmrdTrnsaction.class);
+        classes.add(WS_CallFarmerCollectionKanhaApi.class);
 
         // Register provider classes.
 
