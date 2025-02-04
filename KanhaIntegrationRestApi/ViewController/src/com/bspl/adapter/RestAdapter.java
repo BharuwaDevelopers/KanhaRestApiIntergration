@@ -1009,7 +1009,7 @@ public class RestAdapter {
             //System.out.println(formatter.format(date));
             // String file = "/home/oracle/API_ErrorLogs/ErrorLog.txt";
             //String file = "/home/lenovo/Desktop/UCDF/ErrorLog.txt";
-            String file = "/u01/data/domains/UCDFBerp_domain/servers/QC_Server/logs/api_log/ErrorLog.txt";
+            String file = "/u01/data/api_log/ErrorLog.txt";
             File myObj = new File(file);
             if (myObj.createNewFile()) {
                 System.out.println("File created: " + myObj.getName());
@@ -1370,6 +1370,7 @@ public class RestAdapter {
                                         errorMsgObj.setRefDocNo(ApiRefno);
                                         //errorMsgObj.setUploadId(uploadid);
                                         errorMsgObj.setMessage(" Records has been updated");
+                                        WriteToFile("Farmer Collection -->Records has been updated");
                                     }else{
                                         errorMsgObj.setStatusCode(500);
                                         errorMsgObj.setSuccess(false);
@@ -1797,7 +1798,7 @@ public class RestAdapter {
                                 
                                 insertDetailsQuery =
                                 "insert into mm_rmrd_data_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can)\n" +
-                                "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + societyCode + "','" +
+                                "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + chillingCode + "','" +
                                 chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
                                 milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
                                 snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null)";
@@ -1851,6 +1852,7 @@ public class RestAdapter {
                                         errorMsgObj.setRefDocNo(ApiRefno);
                                         //errorMsgObj.setUploadId(uploadid);
                                         errorMsgObj.setMessage(" Records has been updated");
+                                        WriteToFile("RMRD--->Records has been updated");
                                     }else{
                                         errorMsgObj.setStatusCode(500);
                                         errorMsgObj.setSuccess(false);
