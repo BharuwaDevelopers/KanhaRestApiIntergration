@@ -1777,6 +1777,32 @@ public class RestAdapter {
                                 sampleid = jsonobjectDtl.getString("sampleid").toString();
                             }
                             System.out.println("sampleid: " + sampleid);
+                          
+                            BigDecimal rejecT_QTY = BigDecimal.ZERO;
+
+                            String rejectQtyStr = jsonobjectDtl.optString("rejecT_QTY", "").trim();
+
+                            if (!rejectQtyStr.isEmpty()) {
+                                try {
+                                    rejecT_QTY = new BigDecimal(rejectQtyStr);
+                                } catch (NumberFormatException e) {
+                                    // Handle invalid number format gracefully
+                                    rejecT_QTY = BigDecimal.ZERO;
+                                    // Optionally log the error or rethrow
+                                }
+                            }
+                            String adulteration_STATUS=null;
+                            if (jsonobjectDtl.getString("adulteration_STATUS").toString() == null ||
+                                jsonobjectDtl.getString("adulteration_STATUS").toString() == "") {
+                            } else {
+                                adulteration_STATUS = jsonobjectDtl.getString("adulteration_STATUS").toString();
+                            }
+                            String remark=null;
+                            if (jsonobjectDtl.getString("remark").toString() == null ||
+                                jsonobjectDtl.getString("remark").toString() == "") {
+                            } else {
+                                remark = jsonobjectDtl.getString("remark").toString();
+                            }
 
 
 
@@ -1797,11 +1823,11 @@ public class RestAdapter {
 //                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 
                                 insertDetailsQuery =
-                                "insert into mm_rmrd_data_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can)\n" +
+                                "insert into mm_rmrd_data_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can,REJECT_QTY,ADULTERATION_STATUS,REMARK)\n" +
                                 "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + chillingCode + "','" +
                                 chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
                                 milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
-                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null)";
+                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null,"+rejecT_QTY+",'"+adulteration_STATUS+"','"+remark+"')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 
                                 stmt2.addBatch(insertDetailsQuery);
