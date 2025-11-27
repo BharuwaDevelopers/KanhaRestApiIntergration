@@ -1041,7 +1041,7 @@ public class RestAdapter {
     }
 
 
-    public String getkanhaFarmerCollection() {
+    public String getkanhaFarmerCollection(String unitCodeFromPage,String empCode) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
@@ -1058,8 +1058,10 @@ public class RestAdapter {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
-            String jsonInputString =
-                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
+//            String jsonInputString =
+//                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
+                        String jsonInputString =
+            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1353,7 +1355,7 @@ public class RestAdapter {
                                     //CallableStatement cs;
                                     cs = conn.prepareCall("{CALL PROC_INST_FRMER_TO_MAIN_TAB(?,?,?,?)}");
                                     cs.setObject(1, id);
-                                    cs.setObject(2, "E-001");
+                                    cs.setObject(2, empCode);
                                     cs.registerOutParameter(3, Types.VARCHAR);
                                     cs.registerOutParameter(4, Types.VARCHAR);
                                     // ResultSet rs2 = cs.executeQuery();
@@ -1489,7 +1491,7 @@ public class RestAdapter {
     }
     
     
-    public String getkanhaRMRDCollection() {
+    public String getkanhaRMRDCollection(String unitCodeFromPage,String empCode) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
@@ -1506,8 +1508,10 @@ public class RestAdapter {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
-            String jsonInputString =
-                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
+//            String jsonInputString =
+//                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
+                        String jsonInputString =
+            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1997,7 +2001,7 @@ public class RestAdapter {
     }
     
     
-    public String getkanhaDispatchCollection() {
+    public String getkanhaDispatchCollection(String unitCodeFromPage,String empCode) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
@@ -2015,7 +2019,7 @@ public class RestAdapter {
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
             String jsonInputString =
-                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\"}";
+            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -2343,7 +2347,7 @@ public class RestAdapter {
                                     //CallableStatement cs;
                                     cs = conn.prepareCall("{CALL PROC_INST_DISPATCH_TO_MAIN_TAB(?,?,?,?)}");
                                     cs.setObject(1, id);
-                                    cs.setObject(2, "E-001");
+                                    cs.setObject(2, empCode);
                                     cs.registerOutParameter(3, Types.VARCHAR);
                                     cs.registerOutParameter(4, Types.VARCHAR);
                                     // ResultSet rs2 = cs.executeQuery();

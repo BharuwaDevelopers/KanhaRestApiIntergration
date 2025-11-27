@@ -13,15 +13,17 @@ import java.net.URL;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
+import javax.ws.rs.QueryParam;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 @Path("FarmerCollection")
 public class WS_CallFarmerCollectionKanhaApi {
     @GET
-    public String getFarmerCollection() {
+    public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode) {
         RestAdapter restadapter=new RestAdapter();
-        return restadapter.getkanhaFarmerCollection();
+        return restadapter.getkanhaFarmerCollection(unitCode,empCode);
     }
 
 
