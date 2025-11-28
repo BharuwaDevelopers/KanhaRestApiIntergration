@@ -1322,7 +1322,7 @@ public class RestAdapter {
                                     time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
                                     quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
                                     "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
-                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
+                                    "'0','0','E','"+empCode+"',SYSDATE,'"+empCode+"',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
                                     "','" + can + "','"+route_Code+"')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 stmt2.addBatch(insertDetailsQuery);
@@ -1831,7 +1831,7 @@ public class RestAdapter {
                                 "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + chillingCode + "','" +
                                 chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
                                 milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
-                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null,"+rejecT_QTY+",'"+adulteration_STATUS+"','"+remark+"')";
+                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','"+empCode+"',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null,"+rejecT_QTY+",'"+adulteration_STATUS+"','"+remark+"')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 
                                 stmt2.addBatch(insertDetailsQuery);
@@ -1865,7 +1865,7 @@ public class RestAdapter {
                                     //CallableStatement cs;
                                     cs = conn.prepareCall("{CALL PROC_INST_RMRD_TO_MAIN_TAB(?,?,?,?)}");
                                     cs.setObject(1, id);
-                                    cs.setObject(2, "E-001");
+                                    cs.setObject(2, empCode);
                                     cs.registerOutParameter(3, Types.VARCHAR);
                                     cs.registerOutParameter(4, Types.VARCHAR);
                                     // ResultSet rs2 = cs.executeQuery();
@@ -2313,7 +2313,7 @@ public class RestAdapter {
                                 "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + societyCode + "','" +
                                 chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
                                 milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
-                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null)";
+                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','"+empCode+"',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null)";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 
                                 stmt2.addBatch(insertDetailsQuery);
