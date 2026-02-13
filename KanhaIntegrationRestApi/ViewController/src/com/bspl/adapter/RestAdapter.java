@@ -92,20 +92,32 @@ public class RestAdapter {
                             mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
                             SocietyMstDetails result = null;
                             ArrayList<SocietyMstDetails> SocietyMstDetailsList = new ArrayList<SocietyMstDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("SELECT A.unit_cd,A.society_cent_cd,b.society_cent_desp,D.chilling_cent_cd,E.chilling_cent_desp,b.address,b.city_cd,b.district_cd,\n" +
-                                                  "b.phone_no,b.email,b.gst_no,b.pan_no,b.contact_person,b.fssi_license_no,b.old_society_cent_cd,F.status,\n" +
-                                                  "A.route_code,C.route_descp,A.from_date,A.to_date,b.object_version_number\n" +
-                                                  "FROM society_rute_map A,society_center_mst b,society_center_dtl F,\n" +
-                                                  "route_master C,society_chill_vend_map D,chilling_master E\n" +
-                                                  "WHERE A.society_cent_cd=b.society_cent_cd\n" +
-                                                  "AND b.line_id=F.line_id\n" + "AND A.route_code=C.route_code\n" +
-                                                  "AND A.society_cent_cd=D.society_cent_cd\n" +
-                                                  "and b.society_cent_cd=d.society_cent_cd\n" +
-                                                  "AND D.chilling_cent_cd=E.chilling_cent_cd\n" +
-                                                  " AND nvl(F.status,'N')='Y'\n" +
-                                                  "AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE\n" +
-                                                  "AND nvl(b.api_flag,'N')='N'");
+//                            ResultSet rs =
+//                                stmt.executeQuery("SELECT A.unit_cd,A.society_cent_cd,b.society_cent_desp,D.chilling_cent_cd,E.chilling_cent_desp,b.address,b.city_cd,b.district_cd,\n" +
+//                                                  "b.phone_no,b.email,b.gst_no,b.pan_no,b.contact_person,b.fssi_license_no,b.old_society_cent_cd,F.status,\n" +
+//                                                  "A.route_code,C.route_descp,A.from_date,A.to_date,b.object_version_number\n" +
+//                                                  "FROM society_rute_map A,society_center_mst b,society_center_dtl F,\n" +
+//                                                  "route_master C,society_chill_vend_map D,chilling_master E\n" +
+//                                                  "WHERE A.society_cent_cd=b.society_cent_cd\n" +
+//                                                  "AND b.line_id=F.line_id\n" + "AND A.route_code=C.route_code\n" +
+//                                                  "AND A.society_cent_cd=D.society_cent_cd\n" +
+//                                                  "and b.society_cent_cd=d.society_cent_cd\n" +
+//                                                  "AND D.chilling_cent_cd=E.chilling_cent_cd\n" +
+//                                                  " AND nvl(F.status,'N')='Y'\n" +
+//                                                  "AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE\n" +
+//                                                  "AND nvl(b.api_flag,'N')='N'");
+                            
+                             ResultSet rs =stmt.executeQuery("SELECT A.UNIT_CD,A.SOCIETY_CENT_CD,B.SOCIETY_CENT_DESP,D.CHILLING_CENT_CD,E.CHILLING_CENT_DESP,B.ADDRESS,B.CITY_CD,B.DISTRICT_CD,\n" + 
+                             "B.PHONE_NO,B.EMAIL,B.GST_NO,B.PAN_NO,B.CONTACT_PERSON,B.FSSI_LICENSE_NO,B.OLD_SOCIETY_CENT_CD,F.STATUS,\n" + 
+                             "A.ROUTE_CODE,C.ROUTE_DESCP,A.FROM_DATE,A.TO_DATE,B.OBJECT_VERSION_NUMBER\n" + 
+                             "FROM SOCIETY_RUTE_MAP A\n" + 
+                             "JOIN SOCIETY_CENTER_MST B ON (A.UNIT_CD = B.UNIT_CD AND A.SOCIETY_CENT_CD = B.SOCIETY_CENT_CD)\n" + 
+                             "JOIN SOCIETY_CENTER_DTL F ON (A.UNIT_CD = F.UNIT_CD AND B.LINE_ID = F.LINE_ID)\n" + 
+                             "JOIN ROUTE_MASTER C ON (A.UNIT_CD = C.UNIT_CD AND A.ROUTE_CODE = C.ROUTE_CODE)\n" + 
+                             "JOIN SOCIETY_CHILL_VEND_MAP D ON (A.UNIT_CD = D.UNIT_CD AND A.SOCIETY_CENT_CD = D.SOCIETY_CENT_CD)\n" + 
+                             "JOIN CHILLING_MASTER E ON (D.UNIT_CD = E.UNIT_CD AND D.CHILLING_CENT_CD = E.CHILLING_CENT_CD)\n" + 
+                             "WHERE A.UNIT_CD='"+ mJson.getString("plant_code")+"' AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE AND\n" + 
+                             "NVL(F.STATUS,'N')='Y' AND NVL(B.API_FLAG,'N')='N'");
                             while (rs.next()) {
                                 i++;
                                 result = new SocietyMstDetails();
@@ -159,14 +171,23 @@ public class RestAdapter {
                                  mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
                             ChillingMstDetails result = null;
                             ArrayList<ChillingMstDetails> chillingMstDetailsList = new ArrayList<ChillingMstDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" +
-                                                  "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" +
-                                                  "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" +
-                                                  "from chilling_master a, chilling_detail b\n" +
-                                                  "where a.line_id=b.line_id \n" + "and b.status='Y'\n" +
-                                                  "and trunc(sysdate) between nvl(b.from_date,trunc(sysdate))\n" +
-                                                  "and nvl(b.to_dt,trunc(sysdate))");
+//                            ResultSet rs =
+//                                stmt.executeQuery("select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" +
+//                                                  "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" +
+//                                                  "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" +
+//                                                  "from chilling_master a, chilling_detail b\n" +
+//                                                  "where a.line_id=b.line_id \n" + "and b.status='Y'\n" +
+//                                                  "and trunc(sysdate) between nvl(b.from_date,trunc(sysdate))\n" +
+//                                                  "and nvl(b.to_dt,trunc(sysdate))");
+                            
+                            
+                             ResultSet rs =stmt.executeQuery("select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" + 
+                             "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" + 
+                             "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" + 
+                             "from chilling_master a\n" + 
+                             "join chilling_detail b on a.line_id=b.line_id and a.UNIT_CD=b.UNIT_CD and b.status='Y'\n" + 
+                             "where trunc(sysdate) between nvl(b.from_date,trunc(sysdate)) and nvl(b.to_dt,trunc(sysdate))\n" + 
+                             "and a.UNIT_CD='"+ mJson.getString("plant_code")+"'");
                             while (rs.next()) {
                                 i++;
                                 result = new ChillingMstDetails();
@@ -217,8 +238,8 @@ public class RestAdapter {
                                  mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
                             RouteMasterDetails result = null;
                             ArrayList<RouteMasterDetails> routeMasterDetailsList = new ArrayList<RouteMasterDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master");
+                            //ResultSet rs =  stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master");
+                            ResultSet rs =  stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master where UNIT_CD='"+ mJson.getString("plant_code")+"'");
                             while (rs.next()) {
                                 i++;
                                 result = new RouteMasterDetails();
@@ -262,25 +283,41 @@ public class RestAdapter {
                             VendorMasterDetails result = null;
                             ArrayList<VendorMasterDetails> vendorMasterDetailsList =
                                 new ArrayList<VendorMasterDetails>();
-                            String sqlQuery =
-                                "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name, \n" +
-                                "A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, \n" +
-                                "A.father_husband_name, A.farmer_local_code, A.cast_category, \n" +
-                                "A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, \n" +
-                                "C.address1, C.city, C.STATE, C.city_code, B.bank_name, \n" +
-                                "B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, \n" +
-                                "E.route_code, F.chilling_cent_cd, A.object_version_number \n" +
-                                "FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd \n" +
-                                "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code \n" +
-                                "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd \n" +
-                                "JOIN (SELECT DISTINCT society_cent_cd, route_code \n" +
-                                "      FROM society_rute_map) E ON D.society_cent_cd = E.society_cent_cd \n" +
-                                "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd \n" +
-                                "      FROM society_chill_vend_map) F ON D.society_cent_cd = F.society_cent_cd \n" +
-                                "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" +
-                                "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'";
+//                            String sqlQuery = "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name, \n" +
+//                                "A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, \n" +
+//                                "A.father_husband_name, A.farmer_local_code, A.cast_category, \n" +
+//                                "A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, \n" +
+//                                "C.address1, C.city, C.STATE, C.city_code, B.bank_name, \n" +
+//                                "B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, \n" +
+//                                "E.route_code, F.chilling_cent_cd, A.object_version_number \n" +
+//                                "FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd \n" +
+//                                "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code \n" +
+//                                "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd \n" +
+//                                "JOIN (SELECT DISTINCT society_cent_cd, route_code \n" +
+//                                "      FROM society_rute_map) E ON D.society_cent_cd = E.society_cent_cd \n" +
+//                                "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd \n" +
+//                                "      FROM society_chill_vend_map) F ON D.society_cent_cd = F.society_cent_cd \n" +
+//                                "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" +
+//                                "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'";
 
-
+                            String sqlQuery ="SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name, \n" + 
+                            "A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, \n" + 
+                            "A.father_husband_name, A.farmer_local_code, A.cast_category, \n" + 
+                            "A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, \n" + 
+                            "C.address1, C.city, C.STATE, C.city_code, B.bank_name, \n" + 
+                            "B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, \n" + 
+                            "E.route_code, F.chilling_cent_cd, A.object_version_number \n" + 
+                            "FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd \n" + 
+                            "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code \n" + 
+                            "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd \n" + 
+                            "JOIN (SELECT DISTINCT society_cent_cd, route_code \n" + 
+                            "FROM society_rute_map where UNIT_CD='\"+ mJson.getString(\"plant_code\")+\"') E ON D.society_cent_cd = E.society_cent_cd \n" + 
+                            "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd \n" + 
+                            "FROM society_chill_vend_map where UNIT_CD='\"+ mJson.getString(\"plant_code\")+\"') F ON D.society_cent_cd = F.society_cent_cd \n" + 
+                            "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" + 
+                            "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'\n" + 
+                            "and  d.UNIT_CD='"+ mJson.getString("plant_code")+"'";
+                            
                             ResultSet rs = stmt.executeQuery(sqlQuery);
                             //                                stmt.executeQuery("SELECT A.vendor_id,A.vendor_code,A.NAME as vendor_name,A.registeration_date,A.pan_no,A.gst_reg_no,A.aadhar_card,A.father_husband_name,A.farmer_local_code,A.cast_category,\n" +
                             //                                                  "A.sex_gender,A.ven_type_code,A.ven_type ,C.contact_person,C.address1,C.city,C.STATE,C.city_code,b.bank_name,b.bank_ac_no,b.bank_ifcs_code,A.vendor_status,\n" +
@@ -357,7 +394,7 @@ public class RestAdapter {
                             ArrayList<PaymentCycleDetails> paymentCycleMasterDetailsList =
                                 new ArrayList<PaymentCycleDetails>();
                             ResultSet rs =
-                                stmt.executeQuery("select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle");
+                                stmt.executeQuery("select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD='"+ mJson.getString("plant_code")+"'");
                             while (rs.next()) {
                                 i++;
                                 result = new PaymentCycleDetails();
@@ -402,7 +439,7 @@ public class RestAdapter {
                             UnitDetails result = null;
                             ArrayList<UnitDetails> unitMasterDetailsList = new ArrayList<UnitDetails>();
                             ResultSet rs =
-                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit");
+                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE='"+ mJson.getString("plant_code")+"'");
                             while (rs.next()) {
                                 i++;
                                 result = new UnitDetails();
@@ -819,8 +856,7 @@ public class RestAdapter {
         Statement stmt2 = null;
         String json = "";
         String insertDetailsQuery = "";
-        String password = null;
-        String user_name = null;
+        
 
         if (trnDetails == null || trnDetails == "") {
             trnDetails = "Invalid Json";
