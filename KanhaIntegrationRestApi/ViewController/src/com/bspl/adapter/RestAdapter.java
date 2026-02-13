@@ -300,23 +300,7 @@ public class RestAdapter {
 //                                "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" +
 //                                "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'";
 
-                            String sqlQuery ="SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name, \n" + 
-                            "A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, \n" + 
-                            "A.father_husband_name, A.farmer_local_code, A.cast_category, \n" + 
-                            "A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, \n" + 
-                            "C.address1, C.city, C.STATE, C.city_code, B.bank_name, \n" + 
-                            "B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, \n" + 
-                            "E.route_code, F.chilling_cent_cd, A.object_version_number \n" + 
-                            "FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd \n" + 
-                            "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code \n" + 
-                            "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd \n" + 
-                            "JOIN (SELECT DISTINCT society_cent_cd, route_code \n" + 
-                            "FROM society_rute_map where UNIT_CD='\"+ mJson.getString(\"plant_code\")+\"') E ON D.society_cent_cd = E.society_cent_cd \n" + 
-                            "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd \n" + 
-                            "FROM society_chill_vend_map where UNIT_CD='\"+ mJson.getString(\"plant_code\")+\"') F ON D.society_cent_cd = F.society_cent_cd \n" + 
-                            "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" + 
-                            "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'\n" + 
-                            "and  d.UNIT_CD='"+ mJson.getString("plant_code")+"'";
+                            String sqlQuery ="SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name,A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, A.father_husband_name, A.farmer_local_code, A.cast_category, A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, C.address1, C.city, C.STATE, C.city_code, B.bank_name, B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, E.route_code, F.chilling_cent_cd, A.object_version_number FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd  JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code  JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd JOIN (SELECT DISTINCT society_cent_cd, route_code  FROM society_rute_map where UNIT_CD='"+ mJson.getString("plant_code")+"') E ON D.society_cent_cd = E.society_cent_cd JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd FROM society_chill_vend_map where UNIT_CD='"+ mJson.getString("plant_code")+"') F ON D.society_cent_cd = F.society_cent_cd  WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y'  AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N' and  d.UNIT_CD='"+ mJson.getString("plant_code")+"'";
                             
                             ResultSet rs = stmt.executeQuery(sqlQuery);
                             //                                stmt.executeQuery("SELECT A.vendor_id,A.vendor_code,A.NAME as vendor_name,A.registeration_date,A.pan_no,A.gst_reg_no,A.aadhar_card,A.father_husband_name,A.farmer_local_code,A.cast_category,\n" +
