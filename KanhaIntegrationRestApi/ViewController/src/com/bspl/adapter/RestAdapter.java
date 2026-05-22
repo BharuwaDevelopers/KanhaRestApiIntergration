@@ -70,7 +70,7 @@ public class RestAdapter {
                     ResultSet rs2 =
                         stmt2.executeQuery("select * from API_Authorisation where API_USER_CODE='" +
                                            mJson.getString("user") + "' and api_user_password= '" +
-                                           mJson.getString("password") + "' and STATUS='Y'");
+                                           mJson.getString("password") + "' and STATUS='Y' and  AUTH_TYPE='MASTER'");
                     if (rs2.next()) {
                         stmt = conn.createStatement();
                         errorMsgObj.setStatusCode(200);
@@ -1066,10 +1066,37 @@ public class RestAdapter {
         Statement stmt = null;
         Statement stmt2 = null;
         Statement stmt3 = null;
+        String userName=null;
+        String password=null;
         String json = "";
         String insertDetailsQuery = "";
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
+            if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
+                empCode == null || empCode.trim().isEmpty()) {
+                return "No parameter found";
+            } else {
+                try {
+                    conn = getStartConnection();
+                    stmt3 = conn.createStatement();
+                    ResultSet rs2 = stmt3.executeQuery(
+                        "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
+                    );
+
+                    if (rs2.next()) {
+                        userName = rs2.getString("API_USER_CODE").trim();
+                        password = rs2.getString("API_USER_PASSWORD").trim();
+                    }
+                    else{
+                       return "User and Password not found"; 
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        
+        
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
             URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
@@ -1080,8 +1107,8 @@ public class RestAdapter {
             con.setDoOutput(true);
 //            String jsonInputString =
 //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
-                        String jsonInputString =
-            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+          //  String jsonInputString ="{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+          String jsonInputString ="{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1104,7 +1131,7 @@ public class RestAdapter {
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
 
-                    conn = getStartConnection();
+                   
                     try {
 
                         stmt = conn.createStatement();
@@ -1518,8 +1545,33 @@ public class RestAdapter {
         Statement stmt3 = null;
         String json = "";
         String insertDetailsQuery = "";
+        String userName=null;
+        String password =null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
+        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
+            empCode == null || empCode.trim().isEmpty()) {
+            return "No parameter found";
+        } else {
+            try {
+                conn = getStartConnection();
+                stmt3 = conn.createStatement();
+                ResultSet rs2 = stmt3.executeQuery(
+                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
+                );
+
+                if (rs2.next()) {
+                    userName = rs2.getString("API_USER_CODE").trim();
+                    password = rs2.getString("API_USER_PASSWORD").trim();
+                }
+                else{
+                   return "User and Password not found"; 
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
             URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
@@ -1531,7 +1583,7 @@ public class RestAdapter {
 //            String jsonInputString =
 //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
                         String jsonInputString =
-            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            "{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1554,7 +1606,7 @@ public class RestAdapter {
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
 
-                    conn = getStartConnection();
+                   // conn = getStartConnection();
                     try {
 
                         stmt = conn.createStatement();
@@ -2028,8 +2080,33 @@ public class RestAdapter {
         Statement stmt3 = null;
         String json = "";
         String insertDetailsQuery = "";
+        String userName=null;
+        String password=null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
+        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
+            empCode == null || empCode.trim().isEmpty()) {
+            return "No parameter found";
+        } else {
+            try {
+                conn = getStartConnection();
+                stmt3 = conn.createStatement();
+                ResultSet rs2 = stmt3.executeQuery(
+                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
+                );
+
+                if (rs2.next()) {
+                    userName = rs2.getString("API_USER_CODE").trim();
+                    password = rs2.getString("API_USER_PASSWORD").trim();
+                }
+                else{
+                   return "User and Password not found"; 
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
             URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
@@ -2039,7 +2116,7 @@ public class RestAdapter {
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
             String jsonInputString =
-            "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            "{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -2062,7 +2139,7 @@ public class RestAdapter {
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
 
-                    conn = getStartConnection();
+                  //  conn = getStartConnection();
                     try {
 
                         stmt = conn.createStatement();
