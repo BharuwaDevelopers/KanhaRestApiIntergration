@@ -1,6 +1,7 @@
 package view;
 
 import com.bspl.ws.WS_CallDispatchCollectionKanhaApi;
+import com.bspl.ws.WS_CallFarmerCollectionAegitekApi;
 import com.bspl.ws.WS_CallFarmerCollectionKanhaApi;
 
 import com.bspl.ws.WS_CallRMRDKanhaApi;
@@ -21,6 +22,7 @@ public class GenericApplication extends Application {
         Set<Class<?>> classes = new HashSet<Class<?>>();
 
         // Register root resources.
+        classes.add(WS_CallFarmerCollectionAegitekApi.class);
         classes.add(WS_MasterDetails.class);
         classes.add(WS_FarmerTransaction.class);
         classes.add(WS_CallDispatchCollectionKanhaApi.class);
