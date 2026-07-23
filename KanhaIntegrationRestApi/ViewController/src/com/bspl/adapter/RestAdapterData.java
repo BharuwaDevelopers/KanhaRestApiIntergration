@@ -500,7 +500,7 @@ public class RestAdapterData {
         String insertDetailsQuery = "";
         String userName = null;
         String password = null;
-        int updateCounts=0;
+        int updateCounts = 0;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
         if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() || empCode == null ||
@@ -661,11 +661,20 @@ public class RestAdapterData {
                             }
                             System.out.println("snf: " + snf);
                             // System.out.println("amount: " + jsonobjectDtl.getString("amount").toString());
-                            String amount = null;
-                            if (jsonobjectDtl.getString("amount").toString() == null ||
-                                jsonobjectDtl.getString("amount").toString() == "") {
+                            //                            String amount = null;
+                            //                            if (jsonobjectDtl.getString("amount").toString() == null ||
+                            //                                jsonobjectDtl.getString("amount").toString() == "") {
+                            //                            } else {
+                            //                                amount = jsonobjectDtl.getString("amount").toString();
+                            //                            }
+                            String amount ="0.0";
+                            Object amountObj = jsonobjectDtl.opt("amount");
+
+                            if (amountObj == null || amountObj == JSONObject.NULL) {
+                                System.out.println("Amount is null");
                             } else {
-                                amount = jsonobjectDtl.getString("amount").toString();
+                                amount = amountObj.toString();
+                                System.out.println("Amount: " + amount);
                             }
                             System.out.println("amount: " + amount);
 
@@ -696,11 +705,11 @@ public class RestAdapterData {
                             //                                rate = jsonobjectDtl.getString("rate").toString();
                             //                            }
                             Object objrate = jsonobjectDtl.opt("rate");
-                            System.out.println("objrate---->"+objrate.toString());
+                            System.out.println("objrate---->" + objrate.toString());
                             if (objrate != null && objrate != JSONObject.NULL) {
                                 rate = objrate.toString().trim();
                             }
-                            objrate=null;
+                            objrate = null;
                             System.out.println("rate: " + rate);
 
                             // System.out.println("primeryId: " + jsonobjectDtl.getString("primeryId").toString());
@@ -848,7 +857,7 @@ public class RestAdapterData {
                                 //                                    "'0','0','E','" + empCode + "',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" +
                                 //                                    primeryId + "','" + route_Code + "','" + rcans + "','" + acans + "','" + sampleid +
                                 //                                    "',null," + rejecT_QTY + ",'" + adulteration_STATUS + "','" + remark + "')";
-                                
+
                                 System.out.println("rate = [" + rate + "]");
                                 System.out.println("itemCode = [" + itemCode + "]");
                                 System.out.println("shift = [" + shift + "]");
@@ -870,13 +879,13 @@ public class RestAdapterData {
                                     "',NULL," + rejecT_QTY + ",'" + adulteration_STATUS + "','" + remark + "')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 stmt2.addBatch(insertDetailsQuery);
-//                                try{
-//                                  updateCounts=  stmt2.executeUpdate(insertDetailsQuery) ;
-//                                 conn.commit();
-//                                    System.out.println("updateCounts---"+updateCounts);
-//                                }catch(Exception ex){
-//                                    ex.printStackTrace();
-//                                }
+                                //                                try{
+                                //                                  updateCounts=  stmt2.executeUpdate(insertDetailsQuery) ;
+                                //                                 conn.commit();
+                                //                                    System.out.println("updateCounts---"+updateCounts);
+                                //                                }catch(Exception ex){
+                                //                                    ex.printStackTrace();
+                                //                                }
                             } catch (Exception ex) {
                                 errorMsgObj.setStatusCode(500);
                                 errorMsgObj.setSuccess(false);
@@ -890,11 +899,11 @@ public class RestAdapterData {
                         //                        try {
 
                         try {
-                               // int[] updateCountsArray = stmt.executeBatch();
+                            // int[] updateCountsArray = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
-                               conn.commit();
-                           if (updateCounts1.length > 0) {
-                           //  if (updateCounts > 0) {
+                            conn.commit();
+                            if (updateCounts1.length > 0) {
+                                //  if (updateCounts > 0) {
                                 CallableStatement cs = null;
                                 String resultFlag = null;
                                 String errorMessage = null;
