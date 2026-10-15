@@ -9,6 +9,7 @@ import com.bspl.model.UnitDetails;
 import com.bspl.model.VendorMasterDetails;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -50,509 +51,434 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RestAdapter {
-    public String getMasterDetails(String mstDetails) throws JSONException, Exception {
+    private static final Gson GSON = new Gson();
+    private static final String INVALID_KEY_RESPONSE = "{\"status\": \"error\", \"message\": \"api-key parameter is required\"}";
+
+    public String getMasterDetails(String apiKey, String mstDetails) throws JSONException, Exception {
         ErrorMsg errorMsgObj = new ErrorMsg();
-        Connection conn = null;
-        Statement stmt = null;
-        Statement stmt2 = null;
-        String json = "";
-        String updateQuery = "";
-        String password = null;
-        String user_name = null;
+
+        if (apiKey == null || apiKey.trim().isEmpty()) {
+            return INVALID_KEY_RESPONSE;
+        }
+
+        if (mstDetails == null || mstDetails.trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"Invalid Json\"}";
+        }
+
+        JSONObject mJson;
         try {
-            if (mstDetails == null || mstDetails == "") {
-                mstDetails = "Invalid Json";
-            } else {
-                JSONObject mJson = new JSONObject(mstDetails);
-                conn = getStartConnection();
-                try {
-                    stmt2 = conn.createStatement();
-                    ResultSet rs2 =
-                        stmt2.executeQuery("select * from API_Authorisation where API_USER_CODE='" +
-                                           mJson.getString("user") + "' and api_user_password= '" +
-                                           mJson.getString("password") + "' and STATUS='Y' and  AUTH_TYPE='MASTER'");
-                    if (rs2.next()) {
-                        stmt = conn.createStatement();
-                        errorMsgObj.setStatusCode(200);
-                        errorMsgObj.setSuccess(true);
-                        errorMsgObj.setMessage("succes");
-                        int i = 0;
-                        int charSize = 15;
-                        //                        StringBuilder sb = new StringBuilder(charSize);
-                        //                        String AlphaNumericString =
-                        //                            "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + "0123456789" + "abcdefghijklmnopqrstuvxyz" + "@$#&*";
-                        //                        for (int j = 0; j < charSize; j++) {
-                        //                            int index = (int) (AlphaNumericString.length() * Math.random());
-                        //                            sb.append(AlphaNumericString.charAt(index));
-                        //                        }
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
-                        Date date = new Date();
-                        String sb = dateFormat.format(date).toString();
-                        if (mJson.getString("mastertype").equalsIgnoreCase("Society") &&
-                            mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            SocietyMstDetails result = null;
-                            ArrayList<SocietyMstDetails> SocietyMstDetailsList = new ArrayList<SocietyMstDetails>();
-//                            ResultSet rs =
-//                                stmt.executeQuery("SELECT A.unit_cd,A.society_cent_cd,b.society_cent_desp,D.chilling_cent_cd,E.chilling_cent_desp,b.address,b.city_cd,b.district_cd,\n" +
-//                                                  "b.phone_no,b.email,b.gst_no,b.pan_no,b.contact_person,b.fssi_license_no,b.old_society_cent_cd,F.status,\n" +
-//                                                  "A.route_code,C.route_descp,A.from_date,A.to_date,b.object_version_number\n" +
-//                                                  "FROM society_rute_map A,society_center_mst b,society_center_dtl F,\n" +
-//                                                  "route_master C,society_chill_vend_map D,chilling_master E\n" +
-//                                                  "WHERE A.society_cent_cd=b.society_cent_cd\n" +
-//                                                  "AND b.line_id=F.line_id\n" + "AND A.route_code=C.route_code\n" +
-//                                                  "AND A.society_cent_cd=D.society_cent_cd\n" +
-//                                                  "and b.society_cent_cd=d.society_cent_cd\n" +
-//                                                  "AND D.chilling_cent_cd=E.chilling_cent_cd\n" +
-//                                                  " AND nvl(F.status,'N')='Y'\n" +
-//                                                  "AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE\n" +
-//                                                  "AND nvl(b.api_flag,'N')='N'");
-                            
-                             ResultSet rs =stmt.executeQuery("SELECT A.UNIT_CD,A.SOCIETY_CENT_CD,B.SOCIETY_CENT_DESP,D.CHILLING_CENT_CD,E.CHILLING_CENT_DESP,B.ADDRESS,B.CITY_CD,B.DISTRICT_CD,\n" + 
-                             "B.PHONE_NO,B.EMAIL,B.GST_NO,B.PAN_NO,B.CONTACT_PERSON,B.FSSI_LICENSE_NO,B.OLD_SOCIETY_CENT_CD,F.STATUS,\n" + 
-                             "A.ROUTE_CODE,C.ROUTE_DESCP,A.FROM_DATE,A.TO_DATE,B.OBJECT_VERSION_NUMBER\n" + 
-                             "FROM SOCIETY_RUTE_MAP A\n" + 
-                             "JOIN SOCIETY_CENTER_MST B ON (A.UNIT_CD = B.UNIT_CD AND A.SOCIETY_CENT_CD = B.SOCIETY_CENT_CD)\n" + 
-                             "JOIN SOCIETY_CENTER_DTL F ON (A.UNIT_CD = F.UNIT_CD AND B.LINE_ID = F.LINE_ID)\n" + 
-                             "JOIN ROUTE_MASTER C ON (A.UNIT_CD = C.UNIT_CD AND A.ROUTE_CODE = C.ROUTE_CODE)\n" + 
-                             "JOIN SOCIETY_CHILL_VEND_MAP D ON (A.UNIT_CD = D.UNIT_CD AND A.SOCIETY_CENT_CD = D.SOCIETY_CENT_CD)\n" + 
-                             "JOIN CHILLING_MASTER E ON (D.UNIT_CD = E.UNIT_CD AND D.CHILLING_CENT_CD = E.CHILLING_CENT_CD)\n" + 
-                             "WHERE A.UNIT_CD='"+ mJson.getString("plant_code")+"' AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE AND\n" + 
-                             "NVL(F.STATUS,'N')='Y' AND NVL(B.API_FLAG,'N')='N'");
-                            while (rs.next()) {
-                                i++;
-                                result = new SocietyMstDetails();
-                                result.setUnit_cd(rs.getString("unit_cd"));
-                                result.setSociety_cent_cd(rs.getString("society_cent_cd"));
-                                result.setSociety_cent_desp(rs.getString("society_cent_desp"));
-                                result.setAddress(rs.getString("address"));
-                                result.setCity_cd(rs.getString("city_cd"));
-                                result.setDistrict_cd(rs.getString("district_cd"));
-                                result.setPhone_no(rs.getString("phone_no"));
-                                result.setEmail(rs.getString("email"));
-                                result.setGst_no(rs.getString("gst_no"));
-                                result.setPan_no(rs.getString("pan_no"));
-                                result.setContact_person(rs.getString("contact_person"));
-                                result.setFssi_license_no(rs.getString("fssi_license_no"));
-                                result.setOld_society_cent_cd(rs.getString("old_society_cent_cd"));
-                                result.setStatus(rs.getString("status"));
-                                result.setRoute_code(rs.getString("route_code"));
-                                result.setRoute_descp(rs.getString("route_descp"));
-                                result.setFrom_date(rs.getString("from_date"));
-                                result.setTo_date(rs.getString("to_date"));
-                                result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
-                                result.setChilling_cent_desp(rs.getString("chilling_cent_desp"));
-                                result.setObject_version_number(rs.getInt("object_version_number"));
-                                SocietyMstDetailsList.add(result);
-                                updateQuery =
-                                    "update society_center_mst set API_REFNo='" + sb.toString() +
-                                    "' where SOCIETY_CENT_CD='" + rs.getString("society_cent_cd").toString() + "'";
-                                stmt.addBatch(updateQuery);
-                            }
-                            //  System.out.println("updateQuery--" + updateQuery);
-                            try {
-                                int[] updateCounts = stmt.executeBatch();
-                                //System.out.println("updateCounts--" + updateCounts.length);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                                WriteToFile(ex.toString());
-                            } finally {
-                                try {
-                                    stmt.close();
-                                } catch (Exception ex) {
-                                    WriteToFile(ex.toString());
+            mJson = new JSONObject(mstDetails);
+        } catch (Exception jsone) {
+            jsone.printStackTrace();
+            return "{\"status\": \"error\", \"message\": \"Invalid JSON format\"}";
+        }
+
+        // Validate each required parameter individually with a specific message
+        if (!mJson.has("user") || mJson.isNull("user") || mJson.optString("user", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"user parameter is required\"}";
+        }
+        if (!mJson.has("password") || mJson.isNull("password") || mJson.optString("password", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"password parameter is required\"}";
+        }
+        if (!mJson.has("plant_code") || mJson.isNull("plant_code") || mJson.optString("plant_code", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"plant_code parameter is required\"}";
+        }
+        if (!mJson.has("company_name") || mJson.isNull("company_name") || mJson.optString("company_name", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"company_name parameter is required\"}";
+        }
+        if (!mJson.has("refdoc_no") || mJson.isNull("refdoc_no") || mJson.optString("refdoc_no", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"refdoc_no parameter is required\"}";
+        }
+        if (!mJson.has("mastertype") || mJson.isNull("mastertype") || mJson.optString("mastertype", "").trim().isEmpty()) {
+            return "{\"status\": \"error\", \"message\": \"mastertype parameter is required\"}";
+        }
+
+        String user = mJson.getString("user");
+        String password = mJson.getString("password");
+        String refdocNo = mJson.getString("refdoc_no");
+        String plantCode = mJson.getString("plant_code");
+        String masterType = mJson.optString("mastertype", "");
+        String company_name = mJson.optString("company_name", "");
+
+        String json = "";
+        int i = 0;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+        String sb = dateFormat.format(new Date());
+
+        String authSql = "select * from API_Authorisation where API_USER_CODE=? and api_user_password=? and API_HEAD_KEY=? and API_COMPANY=? and STATUS='Y' and AUTH_TYPE='MASTER'";
+
+        try (Connection conn = getStartConnection();
+             PreparedStatement stmt2 = conn.prepareStatement(authSql)) {
+
+            stmt2.setString(1, user.trim());
+            stmt2.setString(2, password.trim());
+            stmt2.setString(3, apiKey.trim());
+            stmt2.setString(4, company_name.trim());
+
+            try (ResultSet rs2 = stmt2.executeQuery()) {
+                if (rs2.next()) {
+                    errorMsgObj.setStatusCode(200);
+                    errorMsgObj.setSuccess(true);
+                    errorMsgObj.setMessage("succes");
+
+                    if ("0".equalsIgnoreCase(refdocNo)) {
+                        if ("Society".equalsIgnoreCase(masterType)) {
+                            String selectSql = "SELECT A.UNIT_CD,A.SOCIETY_CENT_CD,B.SOCIETY_CENT_DESP,D.CHILLING_CENT_CD,E.CHILLING_CENT_DESP,B.ADDRESS,B.CITY_CD,B.DISTRICT_CD,\n" + 
+                                               "B.PHONE_NO,B.EMAIL,B.GST_NO,B.PAN_NO,B.CONTACT_PERSON,B.FSSI_LICENSE_NO,B.OLD_SOCIETY_CENT_CD,F.STATUS,\n" + 
+                                               "A.ROUTE_CODE,C.ROUTE_DESCP,A.FROM_DATE,A.TO_DATE,B.OBJECT_VERSION_NUMBER\n" + 
+                                               "FROM SOCIETY_RUTE_MAP A\n" + 
+                                               "JOIN SOCIETY_CENTER_MST B ON (A.UNIT_CD = B.UNIT_CD AND A.SOCIETY_CENT_CD = B.SOCIETY_CENT_CD)\n" + 
+                                               "JOIN SOCIETY_CENTER_DTL F ON (A.UNIT_CD = F.UNIT_CD AND B.LINE_ID = F.LINE_ID)\n" + 
+                                               "JOIN ROUTE_MASTER C ON (A.UNIT_CD = C.UNIT_CD AND A.ROUTE_CODE = C.ROUTE_CODE)\n" + 
+                                               "JOIN SOCIETY_CHILL_VEND_MAP D ON (A.UNIT_CD = D.UNIT_CD AND A.SOCIETY_CENT_CD = D.SOCIETY_CENT_CD)\n" + 
+                                               "JOIN CHILLING_MASTER E ON (D.UNIT_CD = E.UNIT_CD AND D.CHILLING_CENT_CD = E.CHILLING_CENT_CD)\n" + 
+                                               "WHERE A.UNIT_CD=? AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE AND\n" + 
+                                               "NVL(F.STATUS,'N')='Y' AND NVL(B.API_FLAG,'N')='N'";
+
+                            String updateSql = "update society_center_mst set API_REFNo=? where SOCIETY_CENT_CD=?";
+
+                            ArrayList<SocietyMstDetails> societyList = new ArrayList<SocietyMstDetails>();
+
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        SocietyMstDetails result = new SocietyMstDetails();
+                                        result.setUnit_cd(rs.getString("unit_cd"));
+                                        result.setSociety_cent_cd(rs.getString("society_cent_cd"));
+                                        result.setSociety_cent_desp(rs.getString("society_cent_desp"));
+                                        result.setAddress(rs.getString("address"));
+                                        result.setCity_cd(rs.getString("city_cd"));
+                                        result.setDistrict_cd(rs.getString("district_cd"));
+                                        result.setPhone_no(rs.getString("phone_no"));
+                                        result.setEmail(rs.getString("email"));
+                                        result.setGst_no(rs.getString("gst_no"));
+                                        result.setPan_no(rs.getString("pan_no"));
+                                        result.setContact_person(rs.getString("contact_person"));
+                                        result.setFssi_license_no(rs.getString("fssi_license_no"));
+                                        result.setOld_society_cent_cd(rs.getString("old_society_cent_cd"));
+                                        result.setStatus(rs.getString("status"));
+                                        result.setRoute_code(rs.getString("route_code"));
+                                        result.setRoute_descp(rs.getString("route_descp"));
+                                        result.setFrom_date(rs.getString("from_date"));
+                                        result.setTo_date(rs.getString("to_date"));
+                                        result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
+                                        result.setChilling_cent_desp(rs.getString("chilling_cent_desp"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        societyList.add(result);
+
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("society_cent_cd"));
+                                        updateStmt.addBatch();
+                                    }
+                                }
+
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
                                 }
                             }
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setSocietyDetails(SocietyMstDetailsList);
-                        }
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setSocietyDetails(societyList);
 
-                        else if (mJson.getString("mastertype").equalsIgnoreCase("chilling") &&
-                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            ChillingMstDetails result = null;
-                            ArrayList<ChillingMstDetails> chillingMstDetailsList = new ArrayList<ChillingMstDetails>();
-//                            ResultSet rs =
-//                                stmt.executeQuery("select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" +
-//                                                  "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" +
-//                                                  "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" +
-//                                                  "from chilling_master a, chilling_detail b\n" +
-//                                                  "where a.line_id=b.line_id \n" + "and b.status='Y'\n" +
-//                                                  "and trunc(sysdate) between nvl(b.from_date,trunc(sysdate))\n" +
-//                                                  "and nvl(b.to_dt,trunc(sysdate))");
-                            
-                            
-                             ResultSet rs =stmt.executeQuery("select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" + 
-                             "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" + 
-                             "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" + 
-                             "from chilling_master a\n" + 
-                             "join chilling_detail b on a.line_id=b.line_id and a.UNIT_CD=b.UNIT_CD and b.status='Y'\n" + 
-                             "where trunc(sysdate) between nvl(b.from_date,trunc(sysdate)) and nvl(b.to_dt,trunc(sysdate))\n" + 
-                             "and a.UNIT_CD='"+ mJson.getString("plant_code")+"'");
-                            while (rs.next()) {
-                                i++;
-                                result = new ChillingMstDetails();
-                                result.setUnit_cd(rs.getString("unit_cd"));
-                                result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
-                                result.setChilling_cent_desp(rs.getString("chilling_cent_desp"));
-                                result.setAddress(rs.getString("address"));
-                                result.setCity_cd(rs.getString("city_cd"));
-                                result.setDistrict_cd(rs.getString("district_cd"));
-                                result.setPhone_no(rs.getString("phone_no"));
-                                result.setEmail(rs.getString("email"));
-                                result.setGst_no(rs.getString("gst_no"));
-                                result.setPan_no(rs.getString("pan_no"));
-                                result.setContact_person(rs.getString("contact_person"));
-                                result.setFssi_license_no(rs.getString("fssi_license_no"));
-                                result.setOld_chilling_cent_cd(rs.getString("old_chilling_cent_cd"));
-                                result.setOwn_comp_flg(rs.getString("own_comp_flg"));
-                                result.setStatus(rs.getString("status"));
-                                result.setObject_version_number(rs.getInt("object_version_number"));
-                                chillingMstDetailsList.add(result);
-                                updateQuery =
-                                    "update chilling_master set API_REFNo='" + sb.toString() +
-                                    "' where CHILLING_CENT_CD='" + rs.getString("chilling_cent_cd").toString() + "'";
-                                stmt.addBatch(updateQuery);
-                            }
-                            // System.out.println("updateQuery--" + updateQuery);
-                            try {
-                                int[] updateCounts = stmt.executeBatch();
-                                //System.out.println("updateCounts--" + updateCounts.length);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                                WriteToFile(ex.toString());
-                            } finally {
-                                try {
-                                    stmt.close();
-                                } catch (Exception ex) {
-                                    WriteToFile(ex.toString());
+                        } else if ("chilling".equalsIgnoreCase(masterType)) {
+                            String selectSql = "select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" + 
+                                               "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" + 
+                                               "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" + 
+                                               "from chilling_master a\n" + 
+                                               "join chilling_detail b on a.line_id=b.line_id and a.UNIT_CD=b.UNIT_CD and b.status='Y'\n" + 
+                                               "where trunc(sysdate) between nvl(b.from_date,trunc(sysdate)) and nvl(b.to_dt,trunc(sysdate))\n" + 
+                                               "and a.UNIT_CD=?";
+
+                            String updateSql = "update chilling_master set API_REFNo=? where CHILLING_CENT_CD=?";
+
+                            ArrayList<ChillingMstDetails> chillingList = new ArrayList<ChillingMstDetails>();
+
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        ChillingMstDetails result = new ChillingMstDetails();
+                                        result.setUnit_cd(rs.getString("unit_cd"));
+                                        result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
+                                        result.setChilling_cent_desp(rs.getString("chilling_cent_desp"));
+                                        result.setAddress(rs.getString("address"));
+                                        result.setCity_cd(rs.getString("city_cd"));
+                                        result.setDistrict_cd(rs.getString("district_cd"));
+                                        result.setPhone_no(rs.getString("phone_no"));
+                                        result.setEmail(rs.getString("email"));
+                                        result.setGst_no(rs.getString("gst_no"));
+                                        result.setPan_no(rs.getString("pan_no"));
+                                        result.setContact_person(rs.getString("contact_person"));
+                                        result.setFssi_license_no(rs.getString("fssi_license_no"));
+                                        result.setOld_chilling_cent_cd(rs.getString("old_chilling_cent_cd"));
+                                        result.setOwn_comp_flg(rs.getString("own_comp_flg"));
+                                        result.setStatus(rs.getString("status"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        chillingList.add(result);
+
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("chilling_cent_cd"));
+                                        updateStmt.addBatch();
+                                    }
+                                }
+
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
                                 }
                             }
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setChillingdetails(chillingMstDetailsList);
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setChillingdetails(chillingList);
 
+                        } else if ("Route".equalsIgnoreCase(masterType)) {
+                            String selectSql = "SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master where UNIT_CD=?";
+                            String updateSql = "update route_master set API_REFNo=? where ROUTE_CODE=?";
 
-                        }
+                            ArrayList<RouteMasterDetails> routeList = new ArrayList<RouteMasterDetails>();
 
-                        else if (mJson.getString("mastertype").equalsIgnoreCase("Route") &&
-                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            RouteMasterDetails result = null;
-                            ArrayList<RouteMasterDetails> routeMasterDetailsList = new ArrayList<RouteMasterDetails>();
-                            //ResultSet rs =  stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master");
-                            ResultSet rs =  stmt.executeQuery("SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master where UNIT_CD='"+ mJson.getString("plant_code")+"'");
-                            while (rs.next()) {
-                                i++;
-                                result = new RouteMasterDetails();
-                                result.setRoute_code(rs.getString("route_code"));
-                                result.setRoute_descp(rs.getString("route_descp"));
-                                result.setRoute_duration_frm(rs.getString("route_duration_frm"));
-                                result.setRoute_duration_to(rs.getString("route_duration_to"));
-                                result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
-                                result.setStatus(rs.getString("status"));
-                                result.setObject_version_number(rs.getInt("object_version_number"));
-                                result.setMgr_distance(rs.getString("mgr_distance"));
-                                result.setEvng_distance(rs.getString("evng_distance"));
-                                result.setUnitCode(rs.getString("UNIT_CD"));
-                                routeMasterDetailsList.add(result);
-                                updateQuery =
-                                    "update route_master set API_REFNo='" + sb.toString() + "' where ROUTE_CODE='" +
-                                    rs.getString("route_code").toString() + "'";
-                                stmt.addBatch(updateQuery);
-                            }
-                            //System.out.println("updateQuery--" + updateQuery);
-                            try {
-                                int[] updateCounts = stmt.executeBatch();
-                                //System.out.println("updateCounts--" + updateCounts.length);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                                WriteToFile(ex.toString());
-                            } finally {
-                                try {
-                                    stmt.close();
-                                } catch (Exception ex) {
-                                    WriteToFile(ex.toString());
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        RouteMasterDetails result = new RouteMasterDetails();
+                                        result.setRoute_code(rs.getString("route_code"));
+                                        result.setRoute_descp(rs.getString("route_descp"));
+                                        result.setRoute_duration_frm(rs.getString("route_duration_frm"));
+                                        result.setRoute_duration_to(rs.getString("route_duration_to"));
+                                        result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
+                                        result.setStatus(rs.getString("status"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        result.setMgr_distance(rs.getString("mgr_distance"));
+                                        result.setEvng_distance(rs.getString("evng_distance"));
+                                        result.setUnitCode(rs.getString("UNIT_CD"));
+                                        routeList.add(result);
+
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("route_code"));
+                                        updateStmt.addBatch();
+                                    }
+                                }
+
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
                                 }
                             }
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setRouteMasterDetails(routeMasterDetailsList);
-                        }
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setRouteMasterDetails(routeList);
 
-                        else if (mJson.getString("mastertype").equalsIgnoreCase("Vendor") &&
-                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            VendorMasterDetails result = null;
-                            ArrayList<VendorMasterDetails> vendorMasterDetailsList =
-                                new ArrayList<VendorMasterDetails>();
-//                            String sqlQuery = "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name, \n" +
-//                                "A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, \n" +
-//                                "A.father_husband_name, A.farmer_local_code, A.cast_category, \n" +
-//                                "A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, \n" +
-//                                "C.address1, C.city, C.STATE, C.city_code, B.bank_name, \n" +
-//                                "B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, \n" +
-//                                "E.route_code, F.chilling_cent_cd, A.object_version_number \n" +
-//                                "FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd \n" +
-//                                "JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code \n" +
-//                                "JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd \n" +
-//                                "JOIN (SELECT DISTINCT society_cent_cd, route_code \n" +
-//                                "      FROM society_rute_map) E ON D.society_cent_cd = E.society_cent_cd \n" +
-//                                "JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd \n" +
-//                                "      FROM society_chill_vend_map) F ON D.society_cent_cd = F.society_cent_cd \n" +
-//                                "WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y' \n" +
-//                                "AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N'";
+                        } else if ("Vendor".equalsIgnoreCase(masterType)) {
+                            String selectSql = "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name,A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, A.father_husband_name, A.farmer_local_code, A.cast_category, A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, C.address1, C.city, C.STATE, C.city_code, B.bank_name, B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, E.route_code, F.chilling_cent_cd, A.object_version_number FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd  JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code  JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd JOIN (SELECT DISTINCT society_cent_cd, route_code  FROM society_rute_map where UNIT_CD=?) E ON D.society_cent_cd = E.society_cent_cd JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd FROM society_chill_vend_map where UNIT_CD=?) F ON D.society_cent_cd = F.society_cent_cd  WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y'  AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N' and  d.UNIT_CD=?";
 
-                            String sqlQuery ="SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name,A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, A.father_husband_name, A.farmer_local_code, A.cast_category, A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, C.address1, C.city, C.STATE, C.city_code, B.bank_name, B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, E.route_code, F.chilling_cent_cd, A.object_version_number FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd  JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code  JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd JOIN (SELECT DISTINCT society_cent_cd, route_code  FROM society_rute_map where UNIT_CD='"+ mJson.getString("plant_code")+"') E ON D.society_cent_cd = E.society_cent_cd JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd FROM society_chill_vend_map where UNIT_CD='"+ mJson.getString("plant_code")+"') F ON D.society_cent_cd = F.society_cent_cd  WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y'  AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N' and  d.UNIT_CD='"+ mJson.getString("plant_code")+"'";
-                            
-                            ResultSet rs = stmt.executeQuery(sqlQuery);
-                            //                                stmt.executeQuery("SELECT A.vendor_id,A.vendor_code,A.NAME as vendor_name,A.registeration_date,A.pan_no,A.gst_reg_no,A.aadhar_card,A.father_husband_name,A.farmer_local_code,A.cast_category,\n" +
-                            //                                                  "A.sex_gender,A.ven_type_code,A.ven_type ,C.contact_person,C.address1,C.city,C.STATE,C.city_code,b.bank_name,b.bank_ac_no,b.bank_ifcs_code,A.vendor_status,\n" +
-                            //                                                  "D.society_cent_cd,E.route_code,F.chilling_cent_cd,A.object_version_number\n" +
-                            //                                                  "FROM vendor_master A,vendor_bank_detail b,vendor_regd_address C ,\n" +
-                            //                                                  "society_farmer_ven_map D,society_rute_map E,society_chill_vend_map F\n" +
-                            //                                                  "WHERE   ven_type='F' AND A.vendor_code=b.ven_cd AND A.vendor_code=C.vendor_code\n" +
-                            //                                                  "AND A.vendor_code=D.farmer_ven_cd AND D.society_cent_cd=E.society_cent_cd\n" +
-                            //                                                  "AND D.society_cent_cd=F.society_cent_cd\n" + "AND A.api_flag='N'");
-                            while (rs.next()) {
-                                i++;
-                                result = new VendorMasterDetails();
-                                result.setVendor_code(rs.getString("vendor_code"));
-                                result.setVendor_name(rs.getString("vendor_name"));
-                                result.setRegisteration_date(rs.getString("registeration_date"));
-                                result.setPan_no(rs.getString("pan_no"));
-                                result.setGst_reg_no(rs.getString("gst_reg_no"));
-                                result.setAadhar_card(rs.getString("aadhar_card"));
-                                result.setFather_husband_name(rs.getString("father_husband_name"));
-                                if (rs.getString("farmer_local_code") == null ||
-                                    rs.getString("farmer_local_code") == "") {
-                                    result.setFarmer_local_code(" ");
-                                } else {
-                                    result.setFarmer_local_code(rs.getString("farmer_local_code"));
+                            String updateSql = "update vendor_master set API_REFNO=? where vendor_id=?";
+
+                            ArrayList<VendorMasterDetails> vendorList = new ArrayList<VendorMasterDetails>();
+
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                stmt.setString(2, plantCode);
+                                stmt.setString(3, plantCode);
+
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        VendorMasterDetails result = new VendorMasterDetails();
+                                        result.setVendor_code(rs.getString("vendor_code"));
+                                        result.setVendor_name(rs.getString("vendor_name"));
+                                        result.setRegisteration_date(rs.getString("registeration_date"));
+                                        result.setPan_no(rs.getString("pan_no"));
+                                        result.setGst_reg_no(rs.getString("gst_reg_no"));
+                                        result.setAadhar_card(rs.getString("aadhar_card"));
+                                        result.setFather_husband_name(rs.getString("father_husband_name"));
+                                        if (rs.getString("farmer_local_code") == null ||
+                                            rs.getString("farmer_local_code").isEmpty()) {
+                                            result.setFarmer_local_code(" ");
+                                        } else {
+                                            result.setFarmer_local_code(rs.getString("farmer_local_code"));
+                                        }
+
+                                        result.setCast_category(rs.getString("cast_category"));
+                                        result.setSex_gender(rs.getString("sex_gender"));
+                                        result.setVen_type_code(rs.getString("ven_type_code"));
+                                        result.setVen_type(rs.getString("ven_type"));
+                                        result.setContact_person(rs.getString("contact_person"));
+                                        result.setAddress1(rs.getString("address1"));
+                                        result.setCity(rs.getString("city"));
+                                        result.setSTATE(rs.getString("STATE"));
+                                        result.setCity_code(rs.getString("city_code"));
+                                        result.setBank_name(rs.getString("bank_name"));
+                                        result.setBank_ac_no(rs.getString("bank_ac_no"));
+                                        result.setBank_ifcs_code(rs.getString("bank_ifcs_code"));
+                                        result.setVendor_status(rs.getString("vendor_status"));
+                                        result.setSociety_cent_cd(rs.getString("society_cent_cd"));
+                                        result.setRoute_code(rs.getString("route_code"));
+                                        result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        result.setVendorId(rs.getString("vendor_id"));
+                                        vendorList.add(result);
+
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("vendor_id"));
+                                        updateStmt.addBatch();
+                                    }
                                 }
 
-                                result.setCast_category(rs.getString("cast_category"));
-                                result.setSex_gender(rs.getString("sex_gender"));
-                                result.setVen_type_code(rs.getString("ven_type_code"));
-                                result.setVen_type(rs.getString("ven_type"));
-                                result.setContact_person(rs.getString("contact_person"));
-                                result.setAddress1(rs.getString("address1"));
-                                result.setCity(rs.getString("city"));
-                                result.setSTATE(rs.getString("STATE"));
-                                result.setCity_code(rs.getString("city_code"));
-                                result.setBank_name(rs.getString("bank_name"));
-                                result.setBank_ac_no(rs.getString("bank_ac_no"));
-                                result.setBank_ifcs_code(rs.getString("bank_ifcs_code"));
-                                result.setVendor_status(rs.getString("vendor_status"));
-                                result.setSociety_cent_cd(rs.getString("society_cent_cd"));
-                                result.setRoute_code(rs.getString("route_code"));
-                                result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
-                                result.setObject_version_number(rs.getInt("object_version_number"));
-                                result.setVendorId(rs.getString("vendor_id"));
-                                vendorMasterDetailsList.add(result);
-                                updateQuery =
-                                    "update vendor_master set API_REFNO='" + sb.toString() + "' where vendor_id='" +
-                                    rs.getString("vendor_id").toString() + "'";
-                                stmt.addBatch(updateQuery);
-                            }
-                            // System.out.println("updateQuery--" + updateQuery);
-                            try {
-                                int[] updateCounts = stmt.executeBatch();
-                                //System.out.println("updateCounts--" + updateCounts.length);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                                WriteToFile(ex.toString());
-                            } finally {
-                                try {
-                                    stmt.close();
-                                } catch (Exception nex) {
-                                    //return "N";
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
                                 }
                             }
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setVendorMasterDetails(vendorMasterDetailsList);
-                        }
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setVendorMasterDetails(vendorList);
 
+                        } else if ("PaymentCycle".equalsIgnoreCase(masterType)) {
+                            String selectSql = "select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD=?";
+                            String updateSql = "update paymet_cycle set API_REFNo=? where pay_line_id=?";
 
-                        else if (mJson.getString("mastertype").equalsIgnoreCase("PaymentCycle") &&
-                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            PaymentCycleDetails result = null;
-                            ArrayList<PaymentCycleDetails> paymentCycleMasterDetailsList =
-                                new ArrayList<PaymentCycleDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD='"+ mJson.getString("plant_code")+"'");
-                            while (rs.next()) {
-                                i++;
-                                result = new PaymentCycleDetails();
-                                result.setUnit_cd(rs.getString("unit_cd"));
-                                result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
-                                result.setPay_cycle(rs.getString("pay_cycle"));
-                                result.setPay_frm_dt(rs.getString("pay_frm_dt"));
-                                result.setPay_to_dt(rs.getString("pay_to_dt"));
-                                result.setFarm_migo(rs.getString("farm_migo"));
-                                result.setFarm_inv_po(rs.getString("farm_inv_po"));
-                                result.setDsk_comm(rs.getString("dsk_comm"));
-                                result.setDrk_rec_po(rs.getString("drk_rec_po"));
-                                result.setObject_version_number(rs.getInt("object_version_number"));
+                            ArrayList<PaymentCycleDetails> paymentList = new ArrayList<PaymentCycleDetails>();
 
-                                paymentCycleMasterDetailsList.add(result);
-                                updateQuery =
-                                    "update paymet_cycle set API_REFNo='" + sb.toString() + "' where pay_line_id='" +
-                                    rs.getString("pay_line_id").toString() + "'";
-                                stmt.addBatch(updateQuery);
-                            }
-                            //System.out.println("updateQuery--" + updateQuery);
-                            try {
-                                int[] updateCounts = stmt.executeBatch();
-                                //System.out.println("updateCounts--" + updateCounts.length);
-                            } catch (SQLException ex) {
-                                ex.printStackTrace();
-                                WriteToFile(ex.toString());
-                            } finally {
-                                try {
-                                    stmt.close();
-                                } catch (Exception ex) {
-                                    WriteToFile(ex.toString());
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        PaymentCycleDetails result = new PaymentCycleDetails();
+                                        result.setUnit_cd(rs.getString("unit_cd"));
+                                        result.setChilling_cent_cd(rs.getString("chilling_cent_cd"));
+                                        result.setPay_cycle(rs.getString("pay_cycle"));
+                                        result.setPay_frm_dt(rs.getString("pay_frm_dt"));
+                                        result.setPay_to_dt(rs.getString("pay_to_dt"));
+                                        result.setFarm_migo(rs.getString("farm_migo"));
+                                        result.setFarm_inv_po(rs.getString("farm_inv_po"));
+                                        result.setDsk_comm(rs.getString("dsk_comm"));
+                                        result.setDrk_rec_po(rs.getString("drk_rec_po"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        paymentList.add(result);
+
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("pay_line_id"));
+                                        updateStmt.addBatch();
+                                    }
+                                }
+
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
                                 }
                             }
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setPaymentcycledetails(paymentCycleMasterDetailsList);
-                        }
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setPaymentcycledetails(paymentList);
 
-                        else if (mJson.getString("mastertype").equalsIgnoreCase("Unit") &&
-                                 mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            UnitDetails result = null;
-                            ArrayList<UnitDetails> unitMasterDetailsList = new ArrayList<UnitDetails>();
-                            ResultSet rs =
-                                stmt.executeQuery("select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE='"+ mJson.getString("plant_code")+"'");
-                            while (rs.next()) {
-                                i++;
-                                result = new UnitDetails();
-                                result.setUnitCode(rs.getString("CODE"));
-                                result.setCityCode(rs.getString("CITY_CODE"));
-                                result.setSbuCode(rs.getString("SBU_CODE"));
-                                result.setUnitName(rs.getString("NAME"));
-                                result.setUnitAddress(rs.getString("ADDRESS"));
-                                result.setApiRefno(rs.getString("API_REFNO"));
-                                unitMasterDetailsList.add(result);
+                        } else if ("Unit".equalsIgnoreCase(masterType)) {
+                            String selectSql = "select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE=?";
+                            ArrayList<UnitDetails> unitList = new ArrayList<UnitDetails>();
 
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        UnitDetails result = new UnitDetails();
+                                        result.setUnitCode(rs.getString("CODE"));
+                                        result.setCityCode(rs.getString("CITY_CODE"));
+                                        result.setSbuCode(rs.getString("SBU_CODE"));
+                                        result.setUnitName(rs.getString("NAME"));
+                                        result.setUnitAddress(rs.getString("ADDRESS"));
+                                        result.setApiRefno(rs.getString("API_REFNO"));
+                                        unitList.add(result);
+                                    }
+                                }
                             }
-                            //System.out.println("updateQuery--" + updateQuery);
-
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
-                            // errorMsgObj.setRefDocNo(sb.toString());
-                            errorMsgObj.setUnitdetails(unitMasterDetailsList);
+                            errorMsgObj.setUnitdetails(unitList);
                         }
-
-
-                        if (mJson.getString("mastertype").equalsIgnoreCase("Society") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-
-                            int status = updateApiStatus("society_center_mst", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-                        if (mJson.getString("mastertype").equalsIgnoreCase("chilling") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            int status = updateApiStatus("chilling_master", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-                        if (mJson.getString("mastertype").equalsIgnoreCase("Route") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            int status = updateApiStatus("route_master", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-                        if (mJson.getString("mastertype").equalsIgnoreCase("Vendor") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            int status = updateApiStatus("vendor_master", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-
-                        if (mJson.getString("mastertype").equalsIgnoreCase("PaymentCycle") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            int status = updateApiStatus("paymet_cycle", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-                        if (mJson.getString("mastertype").equalsIgnoreCase("Unit") &&
-                            !mJson.getString("refdoc_no").equalsIgnoreCase("0")) {
-                            int status = updateApiStatus("unit", mJson.getString("refdoc_no"));
-                            if (status > 0) {
-                                i++;
-                                errorMsgObj.setStatusCode(200);
-                                errorMsgObj.setSuccess(true);
-                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
-                            }
-                        }
-                        updateQuery = "";
-                        if (i == 0) {
-                            errorMsgObj.setStatusCode(500);
-                            errorMsgObj.setSuccess(false);
-                            errorMsgObj.setMessage("data not found");
-                        }
-                        stmt.close();
                     } else {
+                        String tableName = null;
+                        if ("Society".equalsIgnoreCase(masterType)) {
+                            tableName = "society_center_mst";
+                        } else if ("chilling".equalsIgnoreCase(masterType)) {
+                            tableName = "chilling_master";
+                        } else if ("Route".equalsIgnoreCase(masterType)) {
+                            tableName = "route_master";
+                        } else if ("Vendor".equalsIgnoreCase(masterType)) {
+                            tableName = "vendor_master";
+                        } else if ("PaymentCycle".equalsIgnoreCase(masterType)) {
+                            tableName = "paymet_cycle";
+                        } else if ("Unit".equalsIgnoreCase(masterType)) {
+                            tableName = "unit";
+                        }
+
+                        if (tableName != null) {
+                            int status = updateApiStatus(tableName, refdocNo);
+                            if (status > 0) {
+                                i++;
+                                errorMsgObj.setStatusCode(200);
+                                errorMsgObj.setSuccess(true);
+                                errorMsgObj.setMessage("Thanks for your confirmation records has been updated");
+                            }
+                        }
+                    }
+
+                    if (i == 0) {
                         errorMsgObj.setStatusCode(500);
                         errorMsgObj.setSuccess(false);
-                        errorMsgObj.setMessage("not authorized");
+                        errorMsgObj.setMessage("data not found");
                     }
-                    stmt2.close();
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
+                } else {
                     errorMsgObj.setStatusCode(500);
                     errorMsgObj.setSuccess(false);
-                    errorMsgObj.setMessage(ex.toString());
-                    WriteToFile(ex.toString());
-                } finally {
-                    try {
-                        conn.close();
-                    } catch (Exception ex) {
-                        WriteToFile(ex.toString());
-                    }
+                    errorMsgObj.setMessage("not authorized");
                 }
-
             }
-
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
+            errorMsgObj.setStatusCode(500);
+            errorMsgObj.setSuccess(false);
+            errorMsgObj.setMessage(ex.toString());
             WriteToFile(ex.toString());
-            return null;
-        } finally {
-            try {
-                conn.close();
-            } catch (SQLException ex) {
-                ex.getMessage();
-                WriteToFile(ex.toString());
-                return null;
-            }
         }
-        // result.setSucess(true);
+
         try {
-            Gson gson = new Gson();
-            json = gson.toJson(errorMsgObj);
+            json = GSON.toJson(errorMsgObj);
         } catch (Exception ex) {
             WriteToFile(ex.toString());
         }
