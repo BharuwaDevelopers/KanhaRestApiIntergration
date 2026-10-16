@@ -21,9 +21,9 @@ import org.json.JSONObject;
 @Path("FarmerCollection")
 public class WS_CallFarmerCollectionKanhaApi {
     @GET
-    public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode) {
+    public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode,@QueryParam("company_name")String company_name) {
         RestAdapter restadapter=new RestAdapter();
-        return restadapter.getkanhaFarmerCollection(unitCode,empCode);
+        return restadapter.getkanhaFarmerCollection(unitCode,empCode,company_name);
     }
 
 

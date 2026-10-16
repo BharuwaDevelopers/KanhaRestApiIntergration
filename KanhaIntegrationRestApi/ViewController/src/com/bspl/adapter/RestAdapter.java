@@ -987,31 +987,32 @@ public class RestAdapter {
     }
 
 
-    public String getkanhaFarmerCollection(String unitCodeFromPage,String empCode) {
+    public String getkanhaFarmerCollection(String unitCodeFromPage,String empCode,String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
         Statement stmt3 = null;
         String userName=null;
         String password=null;
+        String urlFromTable=null;
         String json = "";
         String insertDetailsQuery = "";
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
             if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-                empCode == null || empCode.trim().isEmpty()) {
+                empCode == null || empCode.trim().isEmpty()||company_name == null || company_name.trim().isEmpty()) {
                 return "No parameter found";
             } else {
                 try {
                     conn = getStartConnection();
                     stmt3 = conn.createStatement();
                     ResultSet rs2 = stmt3.executeQuery(
-                        "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
-                    );
+                        "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'");
 
                     if (rs2.next()) {
                         userName = rs2.getString("API_USER_CODE").trim();
                         password = rs2.getString("API_USER_PASSWORD").trim();
+                        urlFromTable=rs2.getString("API_URL").trim();
                     }
                     else{
                        return "User and Password not found"; 
@@ -1025,7 +1026,10 @@ public class RestAdapter {
         
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
+            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
+                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            }
+            URL url = new URL(urlFromTable);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
@@ -1464,7 +1468,7 @@ public class RestAdapter {
     }
     
     
-    public String getkanhaRMRDCollection(String unitCodeFromPage,String empCode) {
+    public String getkanhaRMRDCollection(String unitCodeFromPage,String empCode,String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
@@ -1473,22 +1477,23 @@ public class RestAdapter {
         String insertDetailsQuery = "";
         String userName=null;
         String password =null;
+        String urlFromTable=null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
         if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-            empCode == null || empCode.trim().isEmpty()) {
+            empCode == null || empCode.trim().isEmpty()||company_name==null||company_name.trim().isEmpty()) {
             return "No parameter found";
         } else {
             try {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
                 ResultSet rs2 = stmt3.executeQuery(
-                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
-                );
+                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'");
 
                 if (rs2.next()) {
                     userName = rs2.getString("API_USER_CODE").trim();
                     password = rs2.getString("API_USER_PASSWORD").trim();
+                    urlFromTable=rs2.getString("API_URL").trim();
                 }
                 else{
                    return "User and Password not found"; 
@@ -1500,7 +1505,10 @@ public class RestAdapter {
         }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
+            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
+                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            }
+            URL url = new URL(urlFromTable);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
@@ -1531,10 +1539,8 @@ public class RestAdapter {
                 System.out.println("Response Message: " + message);
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
-
                    // conn = getStartConnection();
                     try {
-
                         stmt = conn.createStatement();
                         stmt2 = conn.createStatement();
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -1999,7 +2005,7 @@ public class RestAdapter {
     }
     
     
-    public String getkanhaDispatchCollection(String unitCodeFromPage,String empCode) {
+    public String getkanhaDispatchCollection(String unitCodeFromPage,String empCode,String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
@@ -2008,22 +2014,24 @@ public class RestAdapter {
         String insertDetailsQuery = "";
         String userName=null;
         String password=null;
+        String urlFromTable=null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
         if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-            empCode == null || empCode.trim().isEmpty()) {
+            empCode == null || empCode.trim().isEmpty()||company_name==null||company_name.trim().isEmpty()) {
             return "No parameter found";
         } else {
             try {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
                 ResultSet rs2 = stmt3.executeQuery(
-                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND AUTH_TYPE='TRANSACTION'"
+                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'"
                 );
 
                 if (rs2.next()) {
                     userName = rs2.getString("API_USER_CODE").trim();
                     password = rs2.getString("API_USER_PASSWORD").trim();
+                    urlFromTable=rs2.getString("API_URL").trim();
                 }
                 else{
                    return "User and Password not found"; 
@@ -2035,7 +2043,11 @@ public class RestAdapter {
         }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
+            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
+                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            }
+            URL url = new URL(urlFromTable);
+           // URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");

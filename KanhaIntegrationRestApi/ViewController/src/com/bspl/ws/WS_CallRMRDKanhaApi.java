@@ -9,8 +9,8 @@ import javax.ws.rs.QueryParam;
 @Path("RMRD")
 public class WS_CallRMRDKanhaApi {
     @GET
-    public String getRMRDCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode) {
+    public String getRMRDCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode,@QueryParam("company_name")String company_name) {
         RestAdapter restadapter=new RestAdapter();
-        return restadapter.getkanhaRMRDCollection(unitCode,empCode);
+        return restadapter.getkanhaRMRDCollection(unitCode,empCode,company_name);
     }
 }

@@ -9,8 +9,8 @@ import javax.ws.rs.QueryParam;
 @Path("Dispatch")
 public class WS_CallDispatchCollectionKanhaApi {
     @GET
-    public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode) {
+    public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode,@QueryParam("company_name")String company_name) {
         RestAdapter restadapter=new RestAdapter();
-        return restadapter.getkanhaDispatchCollection(unitCode,empCode);
+        return restadapter.getkanhaDispatchCollection(unitCode,empCode,company_name);
     }
 }
