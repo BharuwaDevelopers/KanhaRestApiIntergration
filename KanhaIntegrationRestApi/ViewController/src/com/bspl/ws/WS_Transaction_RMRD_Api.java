@@ -7,7 +7,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
 
 @Path("RMRD")
-public class WS_CallRMRDKanhaApi {
+public class WS_Transaction_RMRD_Api {
     @GET
     public String getRMRDCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode,@QueryParam("company_name")String company_name) {
         RestAdapter restadapter=new RestAdapter();

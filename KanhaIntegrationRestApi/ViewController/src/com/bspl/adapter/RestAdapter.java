@@ -22,6 +22,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 
@@ -52,7 +53,8 @@ import org.json.JSONObject;
 
 public class RestAdapter {
     private static final Gson GSON = new Gson();
-    private static final String INVALID_KEY_RESPONSE = "{\"status\": \"error\", \"message\": \"api-key parameter is required\"}";
+    private static final String INVALID_KEY_RESPONSE =
+        "{\"status\": \"error\", \"message\": \"api-key parameter is required\"}";
 
     public String getMasterDetails(String apiKey, String mstDetails) throws JSONException, Exception {
         ErrorMsg errorMsgObj = new ErrorMsg();
@@ -80,16 +82,19 @@ public class RestAdapter {
         if (!mJson.has("password") || mJson.isNull("password") || mJson.optString("password", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"password parameter is required\"}";
         }
-        if (!mJson.has("plant_code") || mJson.isNull("plant_code") || mJson.optString("plant_code", "").trim().isEmpty()) {
+        if (!mJson.has("plant_code") || mJson.isNull("plant_code") ||
+            mJson.optString("plant_code", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"plant_code parameter is required\"}";
         }
-        if (!mJson.has("company_name") || mJson.isNull("company_name") || mJson.optString("company_name", "").trim().isEmpty()) {
+        if (!mJson.has("company_name") || mJson.isNull("company_name") ||
+            mJson.optString("company_name", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"company_name parameter is required\"}";
         }
         if (!mJson.has("refdoc_no") || mJson.isNull("refdoc_no") || mJson.optString("refdoc_no", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"refdoc_no parameter is required\"}";
         }
-        if (!mJson.has("mastertype") || mJson.isNull("mastertype") || mJson.optString("mastertype", "").trim().isEmpty()) {
+        if (!mJson.has("mastertype") || mJson.isNull("mastertype") ||
+            mJson.optString("mastertype", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"mastertype parameter is required\"}";
         }
 
@@ -105,7 +110,8 @@ public class RestAdapter {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
         String sb = dateFormat.format(new Date());
 
-        String authSql = "select * from API_Authorisation where API_USER_CODE=? and api_user_password=? and API_HEAD_KEY=? and API_COMPANY=? and STATUS='Y' and AUTH_TYPE='MASTER'";
+        String authSql =
+            "select * from API_Authorisation where API_USER_CODE=? and api_user_password=? and API_HEAD_KEY=? and API_COMPANY=? and STATUS='Y' and AUTH_TYPE='MASTER'";
 
         try (Connection conn = getStartConnection();
              PreparedStatement stmt2 = conn.prepareStatement(authSql)) {
@@ -123,17 +129,18 @@ public class RestAdapter {
 
                     if ("0".equalsIgnoreCase(refdocNo)) {
                         if ("Society".equalsIgnoreCase(masterType)) {
-                            String selectSql = "SELECT A.UNIT_CD,A.SOCIETY_CENT_CD,B.SOCIETY_CENT_DESP,D.CHILLING_CENT_CD,E.CHILLING_CENT_DESP,B.ADDRESS,B.CITY_CD,B.DISTRICT_CD,\n" + 
-                                               "B.PHONE_NO,B.EMAIL,B.GST_NO,B.PAN_NO,B.CONTACT_PERSON,B.FSSI_LICENSE_NO,B.OLD_SOCIETY_CENT_CD,F.STATUS,\n" + 
-                                               "A.ROUTE_CODE,C.ROUTE_DESCP,A.FROM_DATE,A.TO_DATE,B.OBJECT_VERSION_NUMBER\n" + 
-                                               "FROM SOCIETY_RUTE_MAP A\n" + 
-                                               "JOIN SOCIETY_CENTER_MST B ON (A.UNIT_CD = B.UNIT_CD AND A.SOCIETY_CENT_CD = B.SOCIETY_CENT_CD)\n" + 
-                                               "JOIN SOCIETY_CENTER_DTL F ON (A.UNIT_CD = F.UNIT_CD AND B.LINE_ID = F.LINE_ID)\n" + 
-                                               "JOIN ROUTE_MASTER C ON (A.UNIT_CD = C.UNIT_CD AND A.ROUTE_CODE = C.ROUTE_CODE)\n" + 
-                                               "JOIN SOCIETY_CHILL_VEND_MAP D ON (A.UNIT_CD = D.UNIT_CD AND A.SOCIETY_CENT_CD = D.SOCIETY_CENT_CD)\n" + 
-                                               "JOIN CHILLING_MASTER E ON (D.UNIT_CD = E.UNIT_CD AND D.CHILLING_CENT_CD = E.CHILLING_CENT_CD)\n" + 
-                                               "WHERE A.UNIT_CD=? AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE AND\n" + 
-                                               "NVL(F.STATUS,'N')='Y' AND NVL(B.API_FLAG,'N')='N'";
+                            String selectSql =
+                                "SELECT A.UNIT_CD,A.SOCIETY_CENT_CD,B.SOCIETY_CENT_DESP,D.CHILLING_CENT_CD,E.CHILLING_CENT_DESP,B.ADDRESS,B.CITY_CD,B.DISTRICT_CD,\n" +
+                                "B.PHONE_NO,B.EMAIL,B.GST_NO,B.PAN_NO,B.CONTACT_PERSON,B.FSSI_LICENSE_NO,B.OLD_SOCIETY_CENT_CD,F.STATUS,\n" +
+                                "A.ROUTE_CODE,C.ROUTE_DESCP,A.FROM_DATE,A.TO_DATE,B.OBJECT_VERSION_NUMBER\n" +
+                                "FROM SOCIETY_RUTE_MAP A\n" +
+                                "JOIN SOCIETY_CENTER_MST B ON (A.UNIT_CD = B.UNIT_CD AND A.SOCIETY_CENT_CD = B.SOCIETY_CENT_CD)\n" +
+                                "JOIN SOCIETY_CENTER_DTL F ON (A.UNIT_CD = F.UNIT_CD AND B.LINE_ID = F.LINE_ID)\n" +
+                                "JOIN ROUTE_MASTER C ON (A.UNIT_CD = C.UNIT_CD AND A.ROUTE_CODE = C.ROUTE_CODE)\n" +
+                                "JOIN SOCIETY_CHILL_VEND_MAP D ON (A.UNIT_CD = D.UNIT_CD AND A.SOCIETY_CENT_CD = D.SOCIETY_CENT_CD)\n" +
+                                "JOIN CHILLING_MASTER E ON (D.UNIT_CD = E.UNIT_CD AND D.CHILLING_CENT_CD = E.CHILLING_CENT_CD)\n" +
+                                "WHERE A.UNIT_CD=? AND TRUNC(SYSDATE) BETWEEN A.FROM_DATE AND A.TO_DATE AND\n" +
+                                "NVL(F.STATUS,'N')='Y' AND NVL(B.API_FLAG,'N')='N'";
 
                             String updateSql = "update society_center_mst set API_REFNo=? where SOCIETY_CENT_CD=?";
 
@@ -190,13 +197,14 @@ public class RestAdapter {
                             errorMsgObj.setSocietyDetails(societyList);
 
                         } else if ("chilling".equalsIgnoreCase(masterType)) {
-                            String selectSql = "select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" + 
-                                               "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" + 
-                                               "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" + 
-                                               "from chilling_master a\n" + 
-                                               "join chilling_detail b on a.line_id=b.line_id and a.UNIT_CD=b.UNIT_CD and b.status='Y'\n" + 
-                                               "where trunc(sysdate) between nvl(b.from_date,trunc(sysdate)) and nvl(b.to_dt,trunc(sysdate))\n" + 
-                                               "and a.UNIT_CD=?";
+                            String selectSql =
+                                "select a.unit_cd,a.chilling_cent_cd,a.chilling_cent_desp,a.address,a.city_cd,a.district_cd,\n" +
+                                "a.phone_no,a.email,a.gst_no,a.pan_no,a.contact_person,a.fssi_license_no,\n" +
+                                "a.old_chilling_cent_cd,a.own_comp_flg,b.status,a.object_version_number\n" +
+                                "from chilling_master a\n" +
+                                "join chilling_detail b on a.line_id=b.line_id and a.UNIT_CD=b.UNIT_CD and b.status='Y'\n" +
+                                "where trunc(sysdate) between nvl(b.from_date,trunc(sysdate)) and nvl(b.to_dt,trunc(sysdate))\n" +
+                                "and a.UNIT_CD=?";
 
                             String updateSql = "update chilling_master set API_REFNo=? where CHILLING_CENT_CD=?";
 
@@ -248,7 +256,8 @@ public class RestAdapter {
                             errorMsgObj.setChillingdetails(chillingList);
 
                         } else if ("Route".equalsIgnoreCase(masterType)) {
-                            String selectSql = "SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master where UNIT_CD=?";
+                            String selectSql =
+                                "SELECT route_code,route_descp,distance,route_duration_frm,route_duration_to,chilling_cent_cd,status,object_version_number,mgr_distance,evng_distance,UNIT_CD FROM route_master where UNIT_CD=?";
                             String updateSql = "update route_master set API_REFNo=? where ROUTE_CODE=?";
 
                             ArrayList<RouteMasterDetails> routeList = new ArrayList<RouteMasterDetails>();
@@ -293,7 +302,8 @@ public class RestAdapter {
                             errorMsgObj.setRouteMasterDetails(routeList);
 
                         } else if ("Vendor".equalsIgnoreCase(masterType)) {
-                            String selectSql = "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name,A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, A.father_husband_name, A.farmer_local_code, A.cast_category, A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, C.address1, C.city, C.STATE, C.city_code, B.bank_name, B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, E.route_code, F.chilling_cent_cd, A.object_version_number FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd  JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code  JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd JOIN (SELECT DISTINCT society_cent_cd, route_code  FROM society_rute_map where UNIT_CD=?) E ON D.society_cent_cd = E.society_cent_cd JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd FROM society_chill_vend_map where UNIT_CD=?) F ON D.society_cent_cd = F.society_cent_cd  WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y'  AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N' and  d.UNIT_CD=?";
+                            String selectSql =
+                                "SELECT A.vendor_id, A.vendor_code, A.NAME AS vendor_name,A.registeration_date, A.pan_no, A.gst_reg_no, A.aadhar_card, A.father_husband_name, A.farmer_local_code, A.cast_category, A.sex_gender, A.ven_type_code, A.ven_type, C.contact_person, C.address1, C.city, C.STATE, C.city_code, B.bank_name, B.bank_ac_no, B.bank_ifcs_code, A.vendor_status, D.society_cent_cd, E.route_code, F.chilling_cent_cd, A.object_version_number FROM vendor_master A LEFT JOIN vendor_bank_detail B ON A.vendor_code = B.ven_cd  JOIN vendor_regd_address C ON A.vendor_code = C.vendor_code  JOIN society_farmer_ven_map D ON A.vendor_code = D.farmer_ven_cd JOIN (SELECT DISTINCT society_cent_cd, route_code  FROM society_rute_map where UNIT_CD=?) E ON D.society_cent_cd = E.society_cent_cd JOIN (SELECT DISTINCT society_cent_cd, chilling_cent_cd FROM society_chill_vend_map where UNIT_CD=?) F ON D.society_cent_cd = F.society_cent_cd  WHERE A.ven_type = 'F' AND A.vendor_status = 'OK' AND A.QA_STATUS = 'Y'  AND trunc(D.TO_DT) >= trunc(SYSDATE) AND A.api_flag = 'N' and  d.UNIT_CD=?";
 
                             String updateSql = "update vendor_master set API_REFNO=? where vendor_id=?";
 
@@ -364,7 +374,8 @@ public class RestAdapter {
                             errorMsgObj.setVendorMasterDetails(vendorList);
 
                         } else if ("PaymentCycle".equalsIgnoreCase(masterType)) {
-                            String selectSql = "select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD=?";
+                            String selectSql =
+                                "select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD=?";
                             String updateSql = "update paymet_cycle set API_REFNo=? where pay_line_id=?";
 
                             ArrayList<PaymentCycleDetails> paymentList = new ArrayList<PaymentCycleDetails>();
@@ -409,7 +420,8 @@ public class RestAdapter {
                             errorMsgObj.setPaymentcycledetails(paymentList);
 
                         } else if ("Unit".equalsIgnoreCase(masterType)) {
-                            String selectSql = "select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE=?";
+                            String selectSql =
+                                "select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE=?";
                             ArrayList<UnitDetails> unitList = new ArrayList<UnitDetails>();
 
                             try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
@@ -766,7 +778,7 @@ public class RestAdapter {
         Statement stmt2 = null;
         String json = "";
         String insertDetailsQuery = "";
-        
+
 
         if (trnDetails == null || trnDetails == "") {
             trnDetails = "Invalid Json";
@@ -808,8 +820,8 @@ public class RestAdapter {
 
                             insertDetailsQuery =
                                 "insert into mm_rmrd_data_upload (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,PAY_CYCLE_ID,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE)\n" +
-                                "VALUES('" + unitCode + "','" + uploadId +
-                                "',GLOBAL_OCI_SEQ.nextval,'" + jsonobjectDtl.getString("SocietyCode") + "','" +
+                                "VALUES('" + unitCode + "','" + uploadId + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                jsonobjectDtl.getString("SocietyCode") + "','" +
                                 jsonobjectDtl.getString("ChillingCODE") + "','" + PaymentcycleID + "','" +
                                 jsonobjectDtl.getString("EDate") + "','" + jsonobjectDtl.getString("Time") + "','" +
                                 jsonobjectDtl.getString("MilkType") + "','" + jsonobjectDtl.getString("LocalCode") +
@@ -987,58 +999,61 @@ public class RestAdapter {
     }
 
 
-    public String getkanhaFarmerCollection(String unitCodeFromPage,String empCode,String company_name) {
+    public String getkanhaFarmerCollection(String unitCodeFromPage, String empCode, String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
         Statement stmt3 = null;
-        String userName=null;
-        String password=null;
-        String urlFromTable=null;
+        String userName = null;
+        String password = null;
+        String api_url = null;
         String json = "";
         String insertDetailsQuery = "";
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
-            if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-                empCode == null || empCode.trim().isEmpty()||company_name == null || company_name.trim().isEmpty()) {
-                return "No parameter found";
-            } else {
-                try {
-                    conn = getStartConnection();
-                    stmt3 = conn.createStatement();
-                    ResultSet rs2 = stmt3.executeQuery(
-                        "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'");
+        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() || empCode == null ||
+            empCode.trim().isEmpty() || company_name == null || company_name.trim().isEmpty()) {
+            return "No parameter found";
+        } else {
+            try {
+                conn = getStartConnection();
+                stmt3 = conn.createStatement();
+                ResultSet rs2 =
+                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='" +
+                                       company_name.trim() + "' AND AUTH_TYPE='TRANSACTION'");
 
-                    if (rs2.next()) {
-                        userName = rs2.getString("API_USER_CODE").trim();
-                        password = rs2.getString("API_USER_PASSWORD").trim();
-                        urlFromTable=rs2.getString("API_URL").trim();
-                    }
-                    else{
-                       return "User and Password not found"; 
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+                if (rs2.next()) {
+                    userName = rs2.getString("API_USER_CODE").trim();
+                    password = rs2.getString("API_USER_PASSWORD").trim();
+                    api_url = rs2.getString("API_URL").trim();
+                } else {
+                    return "User and Password not found";
                 }
+
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-        
-        
+        }
+
+
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
-                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            if (api_url == null || api_url.trim().isEmpty()) {
+                // urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+                return "Please Maintain url";
             }
-            URL url = new URL(urlFromTable);
+            URL url = new URL(api_url);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
-//            String jsonInputString =
-//                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
-          //  String jsonInputString ="{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
-          String jsonInputString ="{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            //            String jsonInputString =
+            //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
+            //  String jsonInputString ="{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            String jsonInputString =
+                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
+                "\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1060,10 +1075,7 @@ public class RestAdapter {
                 System.out.println("Response Message: " + message);
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
-
-                   
                     try {
-
                         stmt = conn.createStatement();
                         stmt2 = conn.createStatement();
                         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -1071,7 +1083,6 @@ public class RestAdapter {
                         String uploadid = dateFormat.format(date).toString();
                         String unitCode = null;
                         String chillingCode = null;
-                        String paymentcycleID = null;
                         String formattedDate = null;
                         JSONArray responseData = responseObject.getJSONArray("responseData");
                         for (int i = 0; i < responseData.length(); i++) {
@@ -1089,14 +1100,6 @@ public class RestAdapter {
                             } else {
                                 eDate = jsonobjectDtl.getString("eDate").toString();
                                 String inputDate = eDate;
-                                //                                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-                                //                                DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("dd-MM-yy");
-                                //                                // Parse the input date
-                                //                                LocalDate date1 = LocalDate.parse(inputDate, inputFormatter);
-                                //                                // Format to the desired output
-                                //                                formattedDate = date1.format(outputFormatter);
-                                //                                System.out.println("formattedDate---" + formattedDate);
-
                                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd");
                                 SimpleDateFormat outputFormat = new SimpleDateFormat("dd-MMM-yy");
 
@@ -1276,7 +1279,7 @@ public class RestAdapter {
                                 measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
                             }
                             System.out.println("measurement_Mode: " + measurement_Mode);
-                            
+
                             String route_Code = null;
                             if (jsonobjectDtl.getString("route_Code").toString() == null ||
                                 jsonobjectDtl.getString("route_Code").toString() == "") {
@@ -1286,21 +1289,21 @@ public class RestAdapter {
                             System.out.println("measurement_Mode: " + route_Code);
 
 
-
                             //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
                                 insertDetailsQuery =
                                     "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
                                     "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
                                     "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
-                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE)\n" +
+                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE,API_COMPANY)\n" +
                                     "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
                                     societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
                                     time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
                                     quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
                                     "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
-                                    "'0','0','E','"+empCode+"',SYSDATE,'"+empCode+"',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
-                                    "','" + can + "','"+route_Code+"')";
+                                    "'0','0','E','" + empCode + "',SYSDATE,'" + empCode + "',SYSDATE,'" + ApiRefno +
+                                    "','Y','" + primeryId + "','" + can + "','" + route_Code + "','" + company_name +
+                                    "')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
                                 stmt2.addBatch(insertDetailsQuery);
                             } catch (Exception ex) {
@@ -1314,7 +1317,7 @@ public class RestAdapter {
 
                             }
                         }
-                        
+
                         try {
                             //    int[] updateCounts = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
@@ -1339,25 +1342,25 @@ public class RestAdapter {
                                     cs.executeQuery();
                                     resultFlag = cs.getString(3);
                                     errorMessage = cs.getString(4);
-                                    System.out.println("resultFlag===>"+resultFlag);
-                                    System.out.println("errorMessage===>"+errorMessage);
-                                  
-                                    
-                                    if(resultFlag.equalsIgnoreCase("S")){
+                                    System.out.println("resultFlag===>" + resultFlag);
+                                    System.out.println("errorMessage===>" + errorMessage);
+
+
+                                    if (resultFlag.equalsIgnoreCase("S")) {
                                         errorMsgObj.setStatusCode(200);
                                         errorMsgObj.setSuccess(true);
                                         errorMsgObj.setRefDocNo(ApiRefno);
                                         //errorMsgObj.setUploadId(uploadid);
                                         errorMsgObj.setMessage(" Records has been updated");
                                         WriteToFile("Farmer Collection -->Records has been updated");
-                                    }else{
+                                    } else {
                                         errorMsgObj.setStatusCode(500);
                                         errorMsgObj.setSuccess(false);
                                         errorMsgObj.setRefDocNo(" ");
-                                      //  errorMsgObj.setUploadId("0");
+                                        //  errorMsgObj.setUploadId("0");
                                         errorMsgObj.setMessage("Records not update! Please retry");
                                     }
-                                   
+
                                     conn.close();
 
                                 } catch (Exception ex) {
@@ -1379,9 +1382,8 @@ public class RestAdapter {
                                         }
                                     }
                                 }
-                                
 
-                              
+
                             } else {
                                 errorMsgObj.setStatusCode(500);
                                 errorMsgObj.setSuccess(false);
@@ -1464,39 +1466,61 @@ public class RestAdapter {
             json = gson.toJson(errorMsgObj);
             return json;
         }
+
+        System.out.println("json--->" + json);
+        JSONObject responseObject = null;
+        try {
+            responseObject = new JSONObject(json);
+        } catch (JSONException e) {
+        }
+        boolean success = responseObject.optBoolean("success", false);
+        String message = responseObject.optString("message", "");
+        String refDocNo = responseObject.optString("refDocNo", "");
+
+        if (success && !refDocNo.isEmpty()) {
+            System.out.println("API Message: " + message);
+            System.out.println("Reference Document No: " + refDocNo);
+            String jsonInputString =
+                "{\"user\":\"" + userName + "\",\"password\":\"" + password + "\",\"collectiontype\":\"vendor\"" +
+                ",\"refdoc_no\":\"" + refDocNo + "\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            try {
+                callPostAcknowledgementApi(api_url, jsonInputString);
+            } catch (IOException e) {
+            }
+        }
         return json;
     }
-    
-    
-    public String getkanhaRMRDCollection(String unitCodeFromPage,String empCode,String company_name) {
+
+
+    public String getkanhaRMRDCollection(String unitCodeFromPage, String empCode, String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
         Statement stmt3 = null;
         String json = "";
         String insertDetailsQuery = "";
-        String userName=null;
-        String password =null;
-        String urlFromTable=null;
+        String userName = null;
+        String password = null;
+        String urlFromTable = null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
-        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-            empCode == null || empCode.trim().isEmpty()||company_name==null||company_name.trim().isEmpty()) {
+        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() || empCode == null ||
+            empCode.trim().isEmpty() || company_name == null || company_name.trim().isEmpty()) {
             return "No parameter found";
         } else {
             try {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
-                ResultSet rs2 = stmt3.executeQuery(
-                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'");
+                ResultSet rs2 =
+                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='" +
+                                       company_name.trim() + "' AND AUTH_TYPE='TRANSACTION'");
 
                 if (rs2.next()) {
                     userName = rs2.getString("API_USER_CODE").trim();
                     password = rs2.getString("API_USER_PASSWORD").trim();
-                    urlFromTable=rs2.getString("API_URL").trim();
-                }
-                else{
-                   return "User and Password not found"; 
+                    urlFromTable = rs2.getString("API_URL").trim();
+                } else {
+                    return "User and Password not found";
                 }
 
             } catch (Exception e) {
@@ -1505,8 +1529,10 @@ public class RestAdapter {
         }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
-                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            if (urlFromTable == null || urlFromTable.trim().isEmpty()) {
+
+                //urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+                return "Please Maintain url";
             }
             URL url = new URL(urlFromTable);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
@@ -1514,10 +1540,11 @@ public class RestAdapter {
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
-//            String jsonInputString =
-//                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
-                        String jsonInputString =
-            "{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            //            String jsonInputString =
+            //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
+            String jsonInputString =
+                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
+                "\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1539,7 +1566,7 @@ public class RestAdapter {
                 System.out.println("Response Message: " + message);
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
-                   // conn = getStartConnection();
+                    // conn = getStartConnection();
                     try {
                         stmt = conn.createStatement();
                         stmt2 = conn.createStatement();
@@ -1727,14 +1754,14 @@ public class RestAdapter {
                             System.out.println("chillingCode: " + chillingCode);
                             //System.out.println("can: " + jsonobjectDtl.getString("can").toString());
 
-//
-//                            String can = null;
-//                            if (jsonobjectDtl.getString("can").toString() == null ||
-//                                jsonobjectDtl.getString("can").toString() == "") {
-//                            } else {
-//                                can = jsonobjectDtl.getString("can").toString();
-//                            }
-//                            System.out.println("can: " + can);
+                            //
+                            //                            String can = null;
+                            //                            if (jsonobjectDtl.getString("can").toString() == null ||
+                            //                                jsonobjectDtl.getString("can").toString() == "") {
+                            //                            } else {
+                            //                                can = jsonobjectDtl.getString("can").toString();
+                            //                            }
+                            //                            System.out.println("can: " + can);
                             //System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode").toString());
 
                             if (jsonobjectDtl.getString("unitCode").toString() == null ||
@@ -1753,7 +1780,7 @@ public class RestAdapter {
                                 measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
                             }
                             System.out.println("measurement_Mode: " + measurement_Mode);
-                            
+
                             String route_Code = null;
                             if (jsonobjectDtl.getString("route_Code").toString() == null ||
                                 jsonobjectDtl.getString("route_Code").toString() == "") {
@@ -1761,7 +1788,7 @@ public class RestAdapter {
                                 route_Code = jsonobjectDtl.getString("route_Code").toString();
                             }
                             System.out.println("route_Code: " + route_Code);
-                            
+
                             String rcans = null;
                             if (jsonobjectDtl.getString("rcans").toString() == null ||
                                 jsonobjectDtl.getString("rcans").toString() == "") {
@@ -1769,7 +1796,7 @@ public class RestAdapter {
                                 rcans = jsonobjectDtl.getString("rcans").toString();
                             }
                             System.out.println("rcans: " + rcans);
-                            
+
                             String acans = null;
                             if (jsonobjectDtl.getString("acans").toString() == null ||
                                 jsonobjectDtl.getString("acans").toString() == "") {
@@ -1777,7 +1804,7 @@ public class RestAdapter {
                                 acans = jsonobjectDtl.getString("acans").toString();
                             }
                             System.out.println("acans: " + acans);
-                            
+
                             String sampleid = null;
                             if (jsonobjectDtl.getString("sampleid").toString() == null ||
                                 jsonobjectDtl.getString("sampleid").toString() == "") {
@@ -1785,7 +1812,7 @@ public class RestAdapter {
                                 sampleid = jsonobjectDtl.getString("sampleid").toString();
                             }
                             System.out.println("sampleid: " + sampleid);
-                          
+
                             BigDecimal rejecT_QTY = BigDecimal.ZERO;
 
                             String rejectQtyStr = jsonobjectDtl.optString("rejecT_QTY", "").trim();
@@ -1799,13 +1826,13 @@ public class RestAdapter {
                                     // Optionally log the error or rethrow
                                 }
                             }
-                            String adulteration_STATUS=null;
+                            String adulteration_STATUS = null;
                             if (jsonobjectDtl.getString("adulteration_STATUS").toString() == null ||
                                 jsonobjectDtl.getString("adulteration_STATUS").toString() == "") {
                             } else {
                                 adulteration_STATUS = jsonobjectDtl.getString("adulteration_STATUS").toString();
                             }
-                            String remark=null;
+                            String remark = null;
                             if (jsonobjectDtl.getString("remark").toString() == null ||
                                 jsonobjectDtl.getString("remark").toString() == "") {
                             } else {
@@ -1813,31 +1840,35 @@ public class RestAdapter {
                             }
 
 
-
                             //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
-//                                insertDetailsQuery =
-//                                    "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
-//                                    "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
-//                                    "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
-//                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE)\n" +
-//                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
-//                                    societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
-//                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
-//                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
-//                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
-//                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
-//                                    "','" + can + "','"+route_Code+"')";
-//                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
-                                
+                                //                                insertDetailsQuery =
+                                //                                    "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
+                                //                                    "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
+                                //                                    "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
+                                //                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE)\n" +
+                                //                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                //                                    societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
+                                //                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
+                                //                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
+                                //                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
+                                //                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
+                                //                                    "','" + can + "','"+route_Code+"')";
+                                //                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
+
                                 insertDetailsQuery =
-                                "insert into mm_rmrd_data_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can,REJECT_QTY,ADULTERATION_STATUS,REMARK)\n" +
-                                "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + chillingCode + "','" +
-                                chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
-                                milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
-                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','"+empCode+"',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null,"+rejecT_QTY+",'"+adulteration_STATUS+"','"+remark+"')";
+                                    "insert into mm_rmrd_data_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can,REJECT_QTY,ADULTERATION_STATUS,REMARK,API_COMPANY)\n" +
+                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                    chillingCode + "','" + chillingCode + "','" + formattedDate.toString() + "','" +
+                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
+                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
+                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
+                                    "'0','0','E','" + empCode + "',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" +
+                                    primeryId + "','" + route_Code + "','" + rcans + "','" + acans + "','" + sampleid +
+                                    "',null," + rejecT_QTY + ",'" + adulteration_STATUS + "','" + remark + "','" +
+                                    company_name + "')";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
-                                
+
                                 stmt2.addBatch(insertDetailsQuery);
                             } catch (Exception ex) {
                                 errorMsgObj.setStatusCode(500);
@@ -1851,7 +1882,7 @@ public class RestAdapter {
                             }
                         }
                         //                        try {
-                       
+
                         try {
                             //    int[] updateCounts = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
@@ -1876,25 +1907,25 @@ public class RestAdapter {
                                     cs.executeQuery();
                                     resultFlag = cs.getString(3);
                                     errorMessage = cs.getString(4);
-                                    System.out.println("resultFlag===>"+resultFlag);
-                                    System.out.println("errorMessage===>"+errorMessage);
-                                  
-                                    
-                                    if(resultFlag.equalsIgnoreCase("S")){
+                                    System.out.println("resultFlag===>" + resultFlag);
+                                    System.out.println("errorMessage===>" + errorMessage);
+
+
+                                    if (resultFlag.equalsIgnoreCase("S")) {
                                         errorMsgObj.setStatusCode(200);
                                         errorMsgObj.setSuccess(true);
                                         errorMsgObj.setRefDocNo(ApiRefno);
                                         //errorMsgObj.setUploadId(uploadid);
                                         errorMsgObj.setMessage(" Records has been updated");
                                         WriteToFile("RMRD--->Records has been updated");
-                                    }else{
+                                    } else {
                                         errorMsgObj.setStatusCode(500);
                                         errorMsgObj.setSuccess(false);
                                         errorMsgObj.setRefDocNo(" ");
-                                      //  errorMsgObj.setUploadId("0");
+                                        //  errorMsgObj.setUploadId("0");
                                         errorMsgObj.setMessage("Records not update! Please retry");
                                     }
-                                   
+
                                     conn.close();
 
                                 } catch (Exception ex) {
@@ -1916,9 +1947,8 @@ public class RestAdapter {
                                         }
                                     }
                                 }
-                                
 
-                              
+
                             } else {
                                 errorMsgObj.setStatusCode(500);
                                 errorMsgObj.setSuccess(false);
@@ -2001,40 +2031,60 @@ public class RestAdapter {
             json = gson.toJson(errorMsgObj);
             return json;
         }
+        System.out.println("json--->" + json);
+        JSONObject responseObject = null;
+        try {
+            responseObject = new JSONObject(json);
+        } catch (JSONException e) {
+        }
+        boolean success = responseObject.optBoolean("success", false);
+        String message = responseObject.optString("message", "");
+        String refDocNo = responseObject.optString("refDocNo", "");
+
+        if (success && !refDocNo.isEmpty()) {
+            System.out.println("API Message: " + message);
+            System.out.println("Reference Document No: " + refDocNo);
+            String jsonInputString =
+                "{\"user\":\"" + userName + "\",\"password\":\"" + password + "\",\"collectiontype\":\"RMRD\"" +
+                ",\"refdoc_no\":\"" + refDocNo + "\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            try {
+                callPostAcknowledgementApi(urlFromTable, jsonInputString);
+            } catch (IOException e) {
+            }
+        }
         return json;
     }
-    
-    
-    public String getkanhaDispatchCollection(String unitCodeFromPage,String empCode,String company_name) {
+
+
+    public String getkanhaDispatchCollection(String unitCodeFromPage, String empCode, String company_name) {
         Connection conn = null;
         Statement stmt = null;
         Statement stmt2 = null;
         Statement stmt3 = null;
         String json = "";
         String insertDetailsQuery = "";
-        String userName=null;
-        String password=null;
-        String urlFromTable=null;
+        String userName = null;
+        String password = null;
+        String urlFromTable = null;
         ErrorMsg errorMsgObj = new ErrorMsg();
         Gson gson = new Gson();
-        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() ||
-            empCode == null || empCode.trim().isEmpty()||company_name==null||company_name.trim().isEmpty()) {
+        if (unitCodeFromPage == null || unitCodeFromPage.trim().isEmpty() || empCode == null ||
+            empCode.trim().isEmpty() || company_name == null || company_name.trim().isEmpty()) {
             return "No parameter found";
         } else {
             try {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
-                ResultSet rs2 = stmt3.executeQuery(
-                    "SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='"+company_name.trim()+"' AND AUTH_TYPE='TRANSACTION'"
-                );
+                ResultSet rs2 =
+                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='" +
+                                       company_name.trim() + "' AND AUTH_TYPE='TRANSACTION'");
 
                 if (rs2.next()) {
                     userName = rs2.getString("API_USER_CODE").trim();
                     password = rs2.getString("API_USER_PASSWORD").trim();
-                    urlFromTable=rs2.getString("API_URL").trim();
-                }
-                else{
-                   return "User and Password not found"; 
+                    urlFromTable = rs2.getString("API_URL").trim();
+                } else {
+                    return "User and Password not found";
                 }
 
             } catch (Exception e) {
@@ -2043,18 +2093,19 @@ public class RestAdapter {
         }
         try {
             // URL url = new URL("http://182.18.144.204:50019/api/v1.0/UCDF/Sycncollectionucdf");
-            if(urlFromTable==null||urlFromTable.trim().isEmpty()){
-                urlFromTable="http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
+            if (urlFromTable == null || urlFromTable.trim().isEmpty()) {
+                urlFromTable = "http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf";
             }
             URL url = new URL(urlFromTable);
-           // URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
+            // URL url = new URL("http://140.245.15.174:50003/api/v1.0/UCDF/Sycncollectionucdf");
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("POST");
             con.setRequestProperty("Content-Type", "application/json");
             con.setRequestProperty("Accept", "application/json");
             con.setDoOutput(true);
             String jsonInputString =
-            "{\"user\":\""+userName+"\",\"password\":\""+password+"\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
+                "\",\"collectiontype\":\"DISPATCH\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -2077,7 +2128,7 @@ public class RestAdapter {
                 System.out.println("Batch Code: " + ApiRefno);
                 if (status == 200) {
 
-                  //  conn = getStartConnection();
+                    //  conn = getStartConnection();
                     try {
 
                         stmt = conn.createStatement();
@@ -2266,14 +2317,14 @@ public class RestAdapter {
                             System.out.println("chillingCode: " + chillingCode);
                             //System.out.println("can: " + jsonobjectDtl.getString("can").toString());
 
-    //
-    //                            String can = null;
-    //                            if (jsonobjectDtl.getString("can").toString() == null ||
-    //                                jsonobjectDtl.getString("can").toString() == "") {
-    //                            } else {
-    //                                can = jsonobjectDtl.getString("can").toString();
-    //                            }
-    //                            System.out.println("can: " + can);
+                            //
+                            //                            String can = null;
+                            //                            if (jsonobjectDtl.getString("can").toString() == null ||
+                            //                                jsonobjectDtl.getString("can").toString() == "") {
+                            //                            } else {
+                            //                                can = jsonobjectDtl.getString("can").toString();
+                            //                            }
+                            //                            System.out.println("can: " + can);
                             //System.out.println("unitCode: " + jsonobjectDtl.getString("unitCode").toString());
 
                             if (jsonobjectDtl.getString("unitCode").toString() == null ||
@@ -2292,7 +2343,7 @@ public class RestAdapter {
                                 measurement_Mode = jsonobjectDtl.getString("measurement_Mode").toString();
                             }
                             System.out.println("measurement_Mode: " + measurement_Mode);
-                            
+
                             String route_Code = null;
                             if (jsonobjectDtl.getString("route_Code").toString() == null ||
                                 jsonobjectDtl.getString("route_Code").toString() == "") {
@@ -2300,7 +2351,7 @@ public class RestAdapter {
                                 route_Code = jsonobjectDtl.getString("route_Code").toString();
                             }
                             System.out.println("route_Code: " + route_Code);
-                            
+
                             String rcans = null;
                             if (jsonobjectDtl.getString("rcans").toString() == null ||
                                 jsonobjectDtl.getString("rcans").toString() == "") {
@@ -2308,7 +2359,7 @@ public class RestAdapter {
                                 rcans = jsonobjectDtl.getString("rcans").toString();
                             }
                             System.out.println("rcans: " + rcans);
-                            
+
                             String acans = null;
                             if (jsonobjectDtl.getString("acans").toString() == null ||
                                 jsonobjectDtl.getString("acans").toString() == "") {
@@ -2316,7 +2367,7 @@ public class RestAdapter {
                                 acans = jsonobjectDtl.getString("acans").toString();
                             }
                             System.out.println("acans: " + acans);
-                            
+
                             String sampleid = null;
                             if (jsonobjectDtl.getString("sampleid").toString() == null ||
                                 jsonobjectDtl.getString("sampleid").toString() == "") {
@@ -2326,31 +2377,34 @@ public class RestAdapter {
                             System.out.println("sampleid: " + sampleid);
 
 
-
                             //  unitCode = jsonobjectDtl.getString("unitCode").toString();
                             try {
-    //                                insertDetailsQuery =
-    //                                    "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
-    //                                    "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
-    //                                    "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
-    //                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE)\n" +
-    //                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
-    //                                    societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
-    //                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
-    //                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
-    //                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
-    //                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
-    //                                    "','" + can + "','"+route_Code+"')";
-    //                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
-                                
+                                //                                insertDetailsQuery =
+                                //                                    "insert into mm_farmer_data_upload_api(UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,MCC_CODE,PAY_CYCLE_ID," +
+                                //                                    "E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT," +
+                                //                                    "QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD," +
+                                //                                    "SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,CAN,ROUTE_CODE)\n" +
+                                //                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                //                                    societyCode + "','" + chillingCode + "',null,'" + formattedDate.toString() + "','" +
+                                //                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
+                                //                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
+                                //                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
+                                //                                    "'0','0','E','Admin',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" + primeryId +
+                                //                                    "','" + can + "','"+route_Code+"')";
+                                //                                System.out.println("insertDetailsQuery--" + insertDetailsQuery);
+
                                 insertDetailsQuery =
-                                "insert into mm_rmrd_dispatch_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can)\n" +
-                                "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" + societyCode + "','" +
-                                chillingCode + "','" +formattedDate.toString() + "','" + time + "','" +
-                                milkType + "','" + localCode +"','" + extendedCode + "','" + quantity + "','" + fat + "','" +
-                                snf + "','" + amount + "','" + quantity_Mode + "','" +measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," + "'0','0','E','"+empCode+"',SYSDATE,'Admin',SYSDATE,'"+ApiRefno+"','Y','"+primeryId+"','"+route_Code+"','"+rcans+"','"+acans+"','"+sampleid+"',null)";
+                                    "insert into mm_rmrd_dispatch_upload_api (UNIT_CD,UPLOAD_ID,UPLOAD_LINE_ID,CP_CODE,CP_VENDOR,E_DATE,E_TIME,MILK_TYPE,LOCAL_CODE,EXTENDED_CODE,QUANTITY,FAT,SNF,AMOUNT,QUANTITY_MODE,MEASUREMENT_MODE,SHIFT,RATE,ITEM_CD,SYS_RATE_ID,SYS_RATE,REC_STATUS,CREATED_BY,CREATED_DATE,MODIFY_BY,MODIFY_DATE,API_REFNO,API_FLAG,NR,ROUTE_CODE,recive_can,accept_can,sample_id,reject_can)\n" +
+                                    "VALUES('" + unitCode + "','" + uploadid + "',GLOBAL_OCI_SEQ.nextval,'" +
+                                    societyCode + "','" + chillingCode + "','" + formattedDate.toString() + "','" +
+                                    time + "','" + milkType + "','" + localCode + "','" + extendedCode + "','" +
+                                    quantity + "','" + fat + "','" + snf + "','" + amount + "','" + quantity_Mode +
+                                    "','" + measurement_Mode + "','" + shift + "','" + rate + "','" + itemCode + "'," +
+                                    "'0','0','E','" + empCode + "',SYSDATE,'Admin',SYSDATE,'" + ApiRefno + "','Y','" +
+                                    primeryId + "','" + route_Code + "','" + rcans + "','" + acans + "','" + sampleid +
+                                    "',null)";
                                 System.out.println("insertDetailsQuery--" + insertDetailsQuery);
-                                
+
                                 stmt2.addBatch(insertDetailsQuery);
                             } catch (Exception ex) {
                                 errorMsgObj.setStatusCode(500);
@@ -2364,7 +2418,7 @@ public class RestAdapter {
                             }
                         }
                         //                        try {
-                       
+
                         try {
                             //    int[] updateCounts = stmt.executeBatch();
                             int[] updateCounts1 = stmt2.executeBatch();
@@ -2389,24 +2443,24 @@ public class RestAdapter {
                                     cs.executeQuery();
                                     resultFlag = cs.getString(3);
                                     errorMessage = cs.getString(4);
-                                    System.out.println("resultFlag===>"+resultFlag);
-                                    System.out.println("errorMessage===>"+errorMessage);
-                                  
-                                    
-                                    if(resultFlag.equalsIgnoreCase("S")){
+                                    System.out.println("resultFlag===>" + resultFlag);
+                                    System.out.println("errorMessage===>" + errorMessage);
+
+
+                                    if (resultFlag.equalsIgnoreCase("S")) {
                                         errorMsgObj.setStatusCode(200);
                                         errorMsgObj.setSuccess(true);
                                         errorMsgObj.setRefDocNo(ApiRefno);
                                         //errorMsgObj.setUploadId(uploadid);
                                         errorMsgObj.setMessage(" Records has been updated");
-                                    }else{
+                                    } else {
                                         errorMsgObj.setStatusCode(500);
                                         errorMsgObj.setSuccess(false);
                                         errorMsgObj.setRefDocNo(" ");
-                                      //  errorMsgObj.setUploadId("0");
+                                        //  errorMsgObj.setUploadId("0");
                                         errorMsgObj.setMessage("Records not update! Please retry");
                                     }
-                                   
+
                                     conn.close();
 
                                 } catch (Exception ex) {
@@ -2428,9 +2482,8 @@ public class RestAdapter {
                                         }
                                     }
                                 }
-                                
 
-                              
+
                             } else {
                                 errorMsgObj.setStatusCode(500);
                                 errorMsgObj.setSuccess(false);
@@ -2515,5 +2568,47 @@ public class RestAdapter {
         }
         return json;
     }
+
+
+    private String callPostAcknowledgementApi(String apiUrl, String jsonInputString) throws IOException {
+        URL url = new URL(apiUrl);
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json");
+        con.setRequestProperty("Accept", "application/json");
+        con.setConnectTimeout(15000);
+        con.setReadTimeout(30000);
+        con.setDoOutput(true);
+        try {
+            byte[] input = jsonInputString.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            try (OutputStream os = con.getOutputStream()) {
+                os.write(input);
+            }
+
+            int responseCode = con.getResponseCode();
+            InputStream stream =
+                responseCode >= 200 && responseCode < 400 ? con.getInputStream() : con.getErrorStream();
+
+            if (stream == null) {
+                return "HTTP Status: " + responseCode;
+            }
+
+            try (BufferedReader br =
+                 new BufferedReader(new InputStreamReader(stream, java.nio.charset.StandardCharsets.UTF_8))) {
+
+                StringBuilder response = new StringBuilder();
+                String line;
+
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+
+                return response.toString();
+            }
+        } finally {
+            con.disconnect();
+        }
+    }
+
 
 }

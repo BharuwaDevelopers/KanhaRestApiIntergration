@@ -19,7 +19,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 @Path("FarmerCollection")
-public class WS_CallFarmerCollectionKanhaApi {
+public class WS_Transaction_FarmerCollection_Api {
     @GET
     public String getFarmerCollection(@QueryParam("unitCode") String unitCode,@QueryParam("empCode") String empCode,@QueryParam("company_name")String company_name) {
         RestAdapter restadapter=new RestAdapter();
