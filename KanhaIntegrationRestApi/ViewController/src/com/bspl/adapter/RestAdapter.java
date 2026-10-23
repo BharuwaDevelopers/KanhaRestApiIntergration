@@ -5,6 +5,7 @@ import com.bspl.model.ChillingMstDetails;
 import com.bspl.model.PaymentCycleDetails;
 import com.bspl.model.RouteMasterDetails;
 import com.bspl.model.SocietyMstDetails;
+import com.bspl.model.SocityRouteMapDetails;
 import com.bspl.model.UnitDetails;
 import com.bspl.model.VendorMasterDetails;
 
@@ -82,8 +83,8 @@ public class RestAdapter {
         if (!mJson.has("password") || mJson.isNull("password") || mJson.optString("password", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"password parameter is required\"}";
         }
-        if (!mJson.has("plant_code") || mJson.isNull("plant_code") ||
-            mJson.optString("plant_code", "").trim().isEmpty()) {
+        if (!mJson.has("unitCode") || mJson.isNull("unitCode") ||
+            mJson.optString("unitCode", "").trim().isEmpty()) {
             return "{\"status\": \"error\", \"message\": \"plant_code parameter is required\"}";
         }
         if (!mJson.has("company_name") || mJson.isNull("company_name") ||
@@ -101,7 +102,7 @@ public class RestAdapter {
         String user = mJson.getString("user");
         String password = mJson.getString("password");
         String refdocNo = mJson.getString("refdoc_no");
-        String plantCode = mJson.getString("plant_code");
+        String plantCode = mJson.getString("unitCode");
         String masterType = mJson.optString("mastertype", "");
         String company_name = mJson.optString("company_name", "");
 
@@ -111,7 +112,7 @@ public class RestAdapter {
         String sb = dateFormat.format(new Date());
 
         String authSql =
-            "select * from API_Authorisation where API_USER_CODE=? and api_user_password=? and API_HEAD_KEY=? and API_COMPANY=? and STATUS='Y' and AUTH_TYPE='MASTER'";
+            "select * from API_Authorisation where API_USER_CODE=? and api_user_password=? and API_HEAD_KEY=? and API_COMPANY_NAME=? and STATUS='Y' and AUTH_TYPE='MASTER'";
 
         try (Connection conn = getStartConnection();
              PreparedStatement stmt2 = conn.prepareStatement(authSql)) {
@@ -373,7 +374,8 @@ public class RestAdapter {
                             errorMsgObj.setRefDocNo(sb);
                             errorMsgObj.setVendorMasterDetails(vendorList);
 
-                        } else if ("PaymentCycle".equalsIgnoreCase(masterType)) {
+                        } 
+                        else if ("PaymentCycle".equalsIgnoreCase(masterType)) {
                             String selectSql =
                                 "select unit_cd,chilling_cent_cd,pay_cycle,pay_frm_dt,pay_to_dt,farm_migo,farm_inv_po,dsk_comm,drk_rec_po,pay_line_id,object_version_number,api_refno from paymet_cycle where UNIT_CD=?";
                             String updateSql = "update paymet_cycle set API_REFNo=? where pay_line_id=?";
@@ -419,7 +421,8 @@ public class RestAdapter {
                             errorMsgObj.setRefDocNo(sb);
                             errorMsgObj.setPaymentcycledetails(paymentList);
 
-                        } else if ("Unit".equalsIgnoreCase(masterType)) {
+                        } 
+                        else if ("Unit".equalsIgnoreCase(masterType)) {
                             String selectSql =
                                 "select CODE,CITY_CODE,SBU_CODE,NAME,ADDRESS,API_REFNO from unit where CODE=?";
                             ArrayList<UnitDetails> unitList = new ArrayList<UnitDetails>();
@@ -443,7 +446,53 @@ public class RestAdapter {
                             errorMsgObj.setMessage("Successfully! All records has been fetched.");
                             errorMsgObj.setUnitdetails(unitList);
                         }
-                    } else {
+                        
+                        else if ("Society_Route_Map".equalsIgnoreCase(masterType)) {
+                            String selectSql =
+                                "select LINE_ID,SOCIETY_CENT_CD,ROUTE_CODE,UNIT_CD,FROM_DATE,TO_DATE,ROUTE_TYPE,OBJECT_VERSION_NUMBER from SOCIETY_RUTE_MAP where API_FLAG is null or API_FLAG='N' and UNIT_CD=?";
+                            String updateSql = "update SOCIETY_RUTE_MAP set API_REFNo=? where LINE_ID=?";
+
+                            ArrayList<SocityRouteMapDetails> socityRouteMapList = new ArrayList<SocityRouteMapDetails>();
+
+                            try (PreparedStatement stmt = conn.prepareStatement(selectSql);
+                                 PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+
+                                stmt.setString(1, plantCode);
+                                try (ResultSet rs = stmt.executeQuery()) {
+                                    while (rs.next()) {
+                                        i++;
+                                        SocityRouteMapDetails result = new SocityRouteMapDetails();
+                                        result.setUnitCd(rs.getString("UNIT_CD"));
+                                        result.setSocietyCentCd(rs.getString("SOCIETY_CENT_CD"));
+                                        result.setRouteCode(rs.getString("ROUTE_CODE"));
+                                        result.setFromDate(rs.getString("FROM_DATE"));
+                                        result.setToDate(rs.getString("TO_DATE"));
+                                        result.setRouteType(rs.getString("ROUTE_TYPE"));
+                                        result.setObject_version_number(rs.getInt("object_version_number"));
+                                        socityRouteMapList.add(result);
+                                        updateStmt.setString(1, sb);
+                                        updateStmt.setString(2, rs.getString("LINE_ID"));
+                                        updateStmt.addBatch();
+                                    }
+                                }
+
+                                if (i > 0) {
+                                    try {
+                                        updateStmt.executeBatch();
+                                    } catch (SQLException ex) {
+                                        ex.printStackTrace();
+                                        WriteToFile(ex.toString());
+                                    }
+                                }
+                            }
+                            errorMsgObj.setMessage("Successfully! All records has been fetched.");
+                            errorMsgObj.setRefDocNo(sb);
+                            errorMsgObj.setSocityRouteMapDetails(socityRouteMapList);
+
+                        } 
+                        
+                    } 
+                    else {
                         String tableName = null;
                         if ("Society".equalsIgnoreCase(masterType)) {
                             tableName = "society_center_mst";
@@ -458,6 +507,9 @@ public class RestAdapter {
                         } else if ("Unit".equalsIgnoreCase(masterType)) {
                             tableName = "unit";
                         }
+                        else if ("Society_Route_Map".equalsIgnoreCase(masterType)) {
+                                tableName = "SOCIETY_RUTE_MAP";
+                                }
 
                         if (tableName != null) {
                             int status = updateApiStatus(tableName, refdocNo);
@@ -1019,7 +1071,7 @@ public class RestAdapter {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
                 ResultSet rs2 =
-                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='" +
+                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY_NAME='" +
                                        company_name.trim() + "' AND AUTH_TYPE='TRANSACTION'");
 
                 if (rs2.next()) {
@@ -1512,7 +1564,7 @@ public class RestAdapter {
                 conn = getStartConnection();
                 stmt3 = conn.createStatement();
                 ResultSet rs2 =
-                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY='" +
+                    stmt3.executeQuery("SELECT * FROM API_Authorisation WHERE STATUS='Y' AND API_COMPANY_NAME='" +
                                        company_name.trim() + "' AND AUTH_TYPE='TRANSACTION'");
 
                 if (rs2.next()) {

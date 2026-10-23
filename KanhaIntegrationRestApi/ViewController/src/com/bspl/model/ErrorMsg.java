@@ -14,6 +14,10 @@ public class ErrorMsg {
     ArrayList<VendorMasterDetails> vendorMasterDetails;
     ArrayList<PaymentCycleDetails> paymentcycledetails;
     ArrayList<UnitDetails> unitdetails;
+    ArrayList<SocityRouteMapDetails> SocityRouteMapDetails;
+
+    
+    
 
     public void setUnitdetails(ArrayList<UnitDetails> unitdetails) {
         this.unitdetails = unitdetails;
@@ -109,5 +113,13 @@ public class ErrorMsg {
 
     public String getUploadId() {
         return uploadId;
+    }
+
+    public void setSocityRouteMapDetails(ArrayList<SocityRouteMapDetails> SocityRouteMapDetails) {
+        this.SocityRouteMapDetails = SocityRouteMapDetails;
+    }
+
+    public ArrayList<SocityRouteMapDetails> getSocityRouteMapDetails() {
+        return SocityRouteMapDetails;
     }
 }
