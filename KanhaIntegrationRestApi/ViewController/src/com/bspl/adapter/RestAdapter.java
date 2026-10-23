@@ -1103,9 +1103,10 @@ public class RestAdapter {
             //            String jsonInputString =
             //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\"}";
             //  String jsonInputString ="{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
-            String jsonInputString =
-                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
-                "\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+//            String jsonInputString =
+//                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
+//                "\",\"collectiontype\":\"vendor\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+                  String jsonInputString ="{\"user\":\"" + userName +"\",\"password\":\"" + password +"\",\"collectiontype\":\"vendor\"" +",\"refdoc_no\":\"0\"" +",\"unitCode\":\"" + unitCodeFromPage +"\",\"company_name\":\"" + company_name + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -1532,9 +1533,7 @@ public class RestAdapter {
         if (success && !refDocNo.isEmpty()) {
             System.out.println("API Message: " + message);
             System.out.println("Reference Document No: " + refDocNo);
-            String jsonInputString =
-                "{\"user\":\"" + userName + "\",\"password\":\"" + password + "\",\"collectiontype\":\"vendor\"" +
-                ",\"refdoc_no\":\"" + refDocNo + "\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            String jsonInputString ="{\"user\":\"" + userName +"\",\"password\":\"" + password +"\",\"collectiontype\":\"vendor\"" +",\"refdoc_no\":\"0\"" +",\"unitCode\":\"" + unitCodeFromPage +"\",\"company_name\":\"" + company_name + "\"}";
             try {
                 callPostAcknowledgementApi(api_url, jsonInputString);
             } catch (IOException e) {
@@ -1594,9 +1593,10 @@ public class RestAdapter {
             con.setDoOutput(true);
             //            String jsonInputString =
             //                "{\"user\":\"Admin\",\"password\":\"Admin@123\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\"}";
-            String jsonInputString =
-                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
-                "\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+//            String jsonInputString =
+//                "{\"user\":\"" + userName + "\",\"password\":\"" + password +
+//                "\",\"collectiontype\":\"RMRD\",\"refdoc_no\":\"0\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            String jsonInputString ="{\"user\":\"" + userName +"\",\"password\":\"" + password +"\",\"collectiontype\":\"RMRD\"" +",\"refdoc_no\":\"0\"" +",\"unitCode\":\"" + unitCodeFromPage +"\",\"company_name\":\"" + company_name + "\"}";
             try (OutputStream os = con.getOutputStream()) {
                 byte[] input = jsonInputString.getBytes("utf-8");
                 os.write(input, 0, input.length);
@@ -2096,9 +2096,7 @@ public class RestAdapter {
         if (success && !refDocNo.isEmpty()) {
             System.out.println("API Message: " + message);
             System.out.println("Reference Document No: " + refDocNo);
-            String jsonInputString =
-                "{\"user\":\"" + userName + "\",\"password\":\"" + password + "\",\"collectiontype\":\"RMRD\"" +
-                ",\"refdoc_no\":\"" + refDocNo + "\",\"unitCode\":\"" + unitCodeFromPage + "\"}";
+            String jsonInputString ="{\"user\":\"" + userName +"\",\"password\":\"" + password +"\",\"collectiontype\":\"RMRD\"" +",\"refdoc_no\":\"0\"" +",\"unitCode\":\"" + unitCodeFromPage +"\",\"company_name\":\"" + company_name + "\"}";
             try {
                 callPostAcknowledgementApi(urlFromTable, jsonInputString);
             } catch (IOException e) {
